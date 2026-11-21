@@ -329,15 +329,15 @@ function SideBar() {
       {/* ================= SIDEBAR ================= */}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[200px] overflow-y-auto bg-[#f0e5d3] pb-6 transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[220px] overflow-y-auto bg-[#f0e5d3] pb-6 transition-transform duration-200 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo + mobile close */}
-        <div className="mb-3 flex items-center justify-between px-5 pb-2 pt-4">
+        <div className="mb-3 flex items-center justify-between px-3 md:px-[5px]  pb-2 pt-4">
           <Link
             to="/dashboard"
-            className="font-['Playfair_Display',serif] text-[30px] font-bold leading-none tracking-wide text-[#8c2f3f] no-underline"
+            className="font-['Playfair_Display',serif] text-[26px] md:text-[30px] lg:text-[38px] font-bold leading-none tracking-wide text-[#5a432f] no-underline"
           >
             Beige
           </Link>
@@ -346,7 +346,7 @@ function SideBar() {
             type="button"
             aria-label="Close menu"
             onClick={() => setMobileOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8c2f3f] hover:bg-white/40 lg:hidden"
+            className="flex h-8 w-8 items-center justify-end rounded-lg text-[#8c2f3f] hover:bg-white/40 lg:hidden"
           >
             <GrClose />
           </button>
@@ -393,9 +393,9 @@ function SideBar() {
       </aside>
 
 
-      {/* ================= MAIN CONTENT ================= */}
 
-      <main className="min-h-screen pt-14 lg:ml-[200px] lg:pt-0">
+
+      <main className="min-h-screen pt-14 lg:ml-[220px] lg:pt-0">
 
         <Routes>
           <Route
@@ -403,7 +403,7 @@ function SideBar() {
             element={<Dashboard />}
           />
 
-          {/* ================= SUB ADMIN ROUTES ================= */}
+
 
           <Route
             path="/add-subadmin"
@@ -421,7 +421,7 @@ function SideBar() {
           />
 
 
-          {/* ================= PRODUCT ROUTES ================= */}
+  
 
           <Route
             path="/view-product"
@@ -503,7 +503,7 @@ function SideBar() {
           />
 
 
-          {/* ================= PRODUCT MEDIA ================= */}
+
 
           <Route
             path="/product-media"
@@ -542,8 +542,6 @@ function SideBar() {
           />
 
 
-          {/* ================= PRODUCT VARIANTS ================= */}
-
           <Route
             path="/product-variants"
             element={
@@ -581,7 +579,6 @@ function SideBar() {
           />
 
 
-          {/* ================= PRODUCT INGREDIENTS ================= */}
 
           <Route
             path="/product-ingredients"
@@ -620,7 +617,6 @@ function SideBar() {
           />
 
 
-          {/* ================= CATEGORY ================= */}
 
           <Route
             path="/view-categories"
@@ -628,7 +624,6 @@ function SideBar() {
           />
 
 
-          {/* ================= COLLECTION ================= */}
 
           <Route
             path="/collections"
@@ -636,7 +631,6 @@ function SideBar() {
           />
 
 
-          {/* ================= INVENTORY ================= */}
 
           <Route
             path="/inventory"
@@ -648,8 +642,6 @@ function SideBar() {
             element={<ExpiryManagement />}
           />
 
-
-          {/* ================= WAREHOUSE ================= */}
 
           <Route
             path="/warehouse"

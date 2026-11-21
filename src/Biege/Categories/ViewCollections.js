@@ -10,24 +10,24 @@ const disabledCls = "disabled:cursor-not-allowed disabled:opacity-60";
 
 const btnPrimary = `rounded-md bg-[#5a432f] px-[18px] py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#4e3016]`;
 
-const btnGhost = `rounded-md border border-[#e3c8cc] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#8c3d4e] transition hover:border-[#e98d9d] hover:bg-[#faf2f3] ${disabledCls}`;
+const btnGhost = `rounded-md border border-[#e3c8cc] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#4e3016] transition hover:border-[#e98d9d] hover:bg-[#faf2f3] ${disabledCls}`;
 
 const rowEdit =
-  "rounded-md border border-[#e98d9d] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#c25b70] transition hover:bg-[#e98d9d] hover:text-white";
+  "rounded-md border border-[#e98d9d] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#c25b70] transition hover:bg-[#4e3016] hover:text-[#000]";
 
 const rowDelete =
-  "rounded-md border border-red-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-600 hover:text-white";
+  "rounded-md border border-red-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-600 hover:text-[#000]";
 
 const fieldCore =
-  "w-full rounded-md border px-3 py-2.5 text-[13px] text-[#26334a] outline-none transition focus:ring-4";
+  "w-full rounded-md border px-3 py-2.5 text-[13px] text-[#26334a] outline-none transition ";
 
 const fieldOk =
-  "border-[#e3c8cc] bg-white focus:border-[#e98d9d] focus:ring-[#e98d9d]/30";
+  "border-[#e3c8cc] bg-white focus:border-[#e98d9d] ";
 
 const fieldBad =
   "border-red-600 bg-red-50 focus:border-red-600 focus:ring-red-200";
 
-const labelClass = "text-xs font-semibold text-[#8c3d4e]";
+const labelClass = "text-xs font-semibold text-[#4e3016]]";
 const errorClass = "text-xs font-medium text-red-600";
 
 const statusBadge = {
@@ -396,7 +396,7 @@ function ViewCollections() {
       {
         name: "S.NO",
         cell: (row, index) => (
-          <span className="font-semibold text-[#26334a]">{index + 1}</span>
+          <span className="font-semibold text-[#6f533b]">{index + 1}</span>
         ),
         width: "70px",
         center: true,
@@ -411,7 +411,7 @@ function ViewCollections() {
               className="h-[50px] w-[50px] rounded-lg border border-[#edf0f5] object-cover"
             />
           ) : (
-            <span className="text-[#8791a5]">-</span>
+            <span className="text-[#6f533b]">-</span>
           ),
         width: "100px",
         center: true,
@@ -431,7 +431,7 @@ function ViewCollections() {
         sortable: true,
         grow: 1,
         cell: (row) => (
-          <span className="rounded border border-[#e3c8cc] bg-[#faf2f3] px-2 py-0.5 font-mono text-xs text-[#8c3d4e]">
+          <span className="rounded border border-[#e3c8cc] bg-[#f0e5d3] px-2 py-0.5 font-mono text-xs text-[#6f533b]">
             {row.slug}
           </span>
         ),
@@ -444,7 +444,7 @@ function ViewCollections() {
         center: true,
         width: "120px",
         cell: (row) => (
-          <span className="rounded-full bg-[#e1f4fb] px-3 py-1 text-xs font-bold text-[#218cac]">
+          <span className="rounded-full bg-[#6f533b] px-3 py-1 text-xs font-bold text-[#fff]">
             {Array.isArray(row.products) ? row.products.length : 0}
           </span>
         ),
@@ -505,7 +505,7 @@ function ViewCollections() {
   const tableStyles = {
     headRow: {
       style: {
-        backgroundColor: "#e3c8cc",
+        backgroundColor: "#f0e5d3",
         minHeight: "52px",
         borderBottom: "none",
         borderTopLeftRadius: "10px",
@@ -517,7 +517,7 @@ function ViewCollections() {
         fontSize: "11px",
         fontWeight: "700",
         letterSpacing: "0.08em",
-        color: "#8c3d4e",
+        color: "#6f533b",
         padding: "12px",
       },
     },
@@ -534,11 +534,11 @@ function ViewCollections() {
         borderBottomColor: "#edf0f5",
       },
       stripedStyle: {
-        backgroundColor: "#fdf8f9",
+        backgroundColor: "#fff9ef",
         color: "#26334a",
       },
       highlightOnHoverStyle: {
-        backgroundColor: "#faf2f3",
+        backgroundColor: "#fff9ef",
         color: "#26334a",
         borderBottomColor: "#edf0f5",
         outline: "none",
@@ -594,11 +594,11 @@ function ViewCollections() {
       {showForm ? (
         /* ================= FORM ================= */
         <div className="overflow-hidden rounded-[13px] border border-[#edf0f5] bg-white shadow-[0_3px_12px_rgba(30,40,70,0.035)]">
-          <div className="border-b border-[#e3c8cc] bg-[#e3c8cc] px-6 py-4">
-            <h5 className="text-xl font-bold text-[#26334a]">
+          <div className="border-b border-[#e3c8cc] bg-[#5a432f] px-6 py-4">
+            <h5 className="text-xl font-bold text-[#fff]">
               {editId ? "Edit Collection" : "Create Collection"}
             </h5>
-            <p className="mt-0.5 text-xs text-[#8c3d4e]">
+            <p className="mt-0.5 text-xs text-[#fff]">
               Fields marked with * are required
             </p>
           </div>
@@ -636,13 +636,13 @@ function ViewCollections() {
               </div>
 
               {/* IMAGE */}
-              <div className="flex flex-col gap-[7px] md:col-span-2">
+              <div className="flex flex-col gap-[7px] md:col-span-2 text-[#4e3016]">
                 <label className={labelClass}>
                   Collection Image <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="file"
-                  className="w-full rounded-md border border-dashed border-[#e98d9d] bg-[#faf2f3] p-2.5 text-xs file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-[#e98d9d] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+                  className="w-full rounded-md border border-dashed border-[#e98d9d] bg-[#fff9ef] p-2.5 text-xs file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-[#4e3016] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
                   accept="image/jpeg,image/png,image/webp"
                   onChange={handleImageChange}
                 />
@@ -734,7 +734,7 @@ function ViewCollections() {
                   </p>
                 </div>
 
-                <span className="rounded-full bg-[#e98d9d] px-3 py-1 text-xs font-bold text-white">
+                <span className="rounded-full bg-[#4e3016] px-3 py-1 text-xs font-bold text-white">
                   {formData.products.length} selected
                 </span>
               </div>
@@ -743,7 +743,7 @@ function ViewCollections() {
                 className={`rounded-[10px] border p-4 ${
                   errors.products
                     ? "border-red-400 bg-red-50"
-                    : "border-[#e3c8cc] bg-[#fdf8f9]"
+                    : "border-[#e3c8cc] bg-[#4e3016]"
                 }`}
               >
                 {products.length === 0 ? (
@@ -765,7 +765,7 @@ function ViewCollections() {
                           htmlFor={`product-${productId}`}
                           className={`pointer-events-auto flex h-full cursor-pointer items-center gap-3 rounded-[10px] border p-2.5 transition ${
                             isSelected
-                              ? "border-[#e98d9d] bg-[#faf2f3] shadow-sm"
+                              ? "border-[#e98d9d] bg-[#fff9ef] shadow-sm"
                               : "border-[#edf0f5] bg-white hover:border-[#e3c8cc]"
                           }`}
                         >
@@ -774,7 +774,7 @@ function ViewCollections() {
                             id={`product-${productId}`}
                             checked={isSelected}
                             onChange={() => handleProductSelect(productId)}
-                            className="h-[18px] w-[18px] shrink-0 cursor-pointer accent-[#e98d9d]"
+                            className="h-[18px] w-[18px] shrink-0 cursor-pointer accent-[#fff]"
                           />
 
                           {product.image && (
@@ -794,7 +794,7 @@ function ViewCollections() {
                               SKU: {product.sku}
                             </span>
 
-                            <span className="block text-xs font-semibold text-[#8c3d4e]">
+                            <span className="block text-xs font-semibold text-[#4e3016]">
                               Price: {product.price}
                             </span>
                           </span>
@@ -849,7 +849,7 @@ function ViewCollections() {
 
             <input
               type="text"
-              className="w-full rounded-md border border-[#e3c8cc] bg-white px-3.5 py-2.5 text-[13px] text-[#26334a] outline-none transition focus:border-[#e98d9d] focus:ring-4 focus:ring-[#e98d9d]/30 sm:w-[300px]"
+              className="w-full rounded-md border border-[#e3c8cc] bg-white px-3.5 py-2.5 text-[13px] text-[#26334a] outline-none transition focus:border-[#e98d9d]   sm:w-[300px]"
               placeholder="Search collections..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -857,6 +857,7 @@ function ViewCollections() {
           </div>
 
           <DataTable
+          
             columns={columns}
             data={filteredCollections}
             progressPending={loading}

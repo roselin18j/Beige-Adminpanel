@@ -21,7 +21,9 @@
   width: 5px;
   height: 10px;
 }
-
+textarea{
+  resize: none;
+}
 /* Track */
 
 ::-webkit-scrollbar-track {
@@ -31,7 +33,7 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #e98d9d;
+  background: #6f533b;
   border-radius: 5px;
 }
 

@@ -15,8 +15,8 @@ import { makeApiRequest } from "../../AxiosServices/apiCall";
 
 /* Theme colours (used by the DataTable customStyles, which can't take classes) */
 const theme = {
-  headBg: "#e8cdd1",
-  headText: "#8c2f3f",
+  headBg: "#f0e5d3",
+  headText: "#6f533b",
   navy: "#1f2a4a",
   muted: "#7f8ba5",
   border: "#e9ebf3",
@@ -133,7 +133,7 @@ function ViewSubAdmin() {
         minWidth: "190px",
         cell: (row) => (
           <div className="flex items-center gap-3 py-2">
-            <div className="flex h-[38px] w-[38px] min-w-[38px] items-center justify-center rounded-full bg-[#e8cdd1] text-sm font-bold text-[#8c2f3f]">
+            <div className="flex h-[38px] w-[38px] min-w-[38px] items-center justify-center rounded-full bg-[#f0e5d3] text-sm font-bold text-[#8c2f3f]">
               {(row.name || "S").trim().charAt(0).toUpperCase()}
             </div>
 
@@ -188,7 +188,7 @@ function ViewSubAdmin() {
               title="Edit Sub Admin"
               aria-label={`Edit ${row.name || "sub-admin"}`}
               onClick={() => handleEdit(row)}
-              className="inline-flex h-[38px] w-[38px] min-w-[38px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-[#6f533b] bg-[#fbeef0] p-0 text-[#d9748a] transition hover:bg-[#6f533b] hover:text-white"
+              className="inline-flex h-[38px] w-[38px] min-w-[38px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-[#6f533b] bg-[#f0e5d3] p-0 text-[#5a432f] transition hover:bg-[#6f533b] hover:text-white"
             >
               <FontAwesomeIcon icon={faPenToSquare} />
             </button>
@@ -199,7 +199,7 @@ function ViewSubAdmin() {
               aria-label={`Delete ${row.name || "sub-admin"}`}
               disabled={deletingId === row._id}
               onClick={() => handleDelete(row._id)}
-              className="inline-flex h-[38px] w-[38px] min-w-[38px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-[#fdeaea] bg-[#fdeaea] p-0 text-[#d64550] transition hover:bg-[#d64550] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-[38px] w-[38px] min-w-[38px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-[#fdeaea] bg-[#fdeaea] p-0 text-[#5a432f] transition hover:bg-[#5a432f] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {deletingId === row._id ? (
                 <span
@@ -281,10 +281,10 @@ function ViewSubAdmin() {
       {/* PAGE HEADER */}
       <div className="mb-[26px] flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="mb-1.5 text-[28px] font-bold text-[#6f533b]">
+          <h2 className="mb-1.5 text-[28px] font-bold text-[#000]">
             Sub Admins
           </h2>
-          <p className="text-sm text-[#7f8ba5]">
+          <p className="text-sm text-[#000]">
             Manage sub-admin accounts and their access.
           </p>
         </div>
@@ -292,7 +292,7 @@ function ViewSubAdmin() {
         <button
           type="button"
           onClick={() => navigate("/add-subadmin")}
-          className="inline-flex cursor-pointer items-center justify-center gap-[9px] rounded-[10px] bg-[#6f533b] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_6px_14px_rgba(233,138,155,0.35)] transition hover:bg-[#d9748a]"
+          className="inline-flex cursor-pointer items-center justify-center gap-[9px] rounded-[10px] bg-[#6f533b] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_6px_14px_rgba(233,138,155,0.35)] transition hover:bg-[#5a432f]"
         >
           <FontAwesomeIcon icon={faPlus} />
           Add Sub Admin
@@ -303,7 +303,7 @@ function ViewSubAdmin() {
       <div className="w-full overflow-hidden rounded-2xl border border-[#e9ebf3] bg-white shadow-[0_4px_18px_rgba(31,42,74,0.04)]">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e9ebf3] px-6 py-[22px]">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fbeef0] text-lg text-[#6f533b]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f0e5d3] text-lg text-[#6f533b]">
               <FontAwesomeIcon icon={faUsers} />
             </div>
 
@@ -345,7 +345,7 @@ function ViewSubAdmin() {
             type="button"
             onClick={fetchAdmins}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-[#e9ebf3] bg-white px-4 py-[11px] text-xs font-semibold text-[#8c2f3f] transition hover:bg-[#fbeef0] disabled:cursor-not-allowed disabled:opacity-65"
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-[#e9ebf3] bg-white px-4 py-[11px] text-xs font-semibold text-[#8c2f3f] transition hover:bg-[#f0e5d3] disabled:cursor-not-allowed disabled:opacity-65"
           >
             <FontAwesomeIcon icon={faRotate} />
             Refresh

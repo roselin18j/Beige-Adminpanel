@@ -25,8 +25,8 @@ const initialReceiveValues = {
 
 /* Theme colours (used by the DataTable customStyles, which can't take classes) */
 const theme = {
-  headBg: "#e8cdd1",
-  headText: "#8c2f3f",
+  headBg: "#f0e5d3",
+  headText: "#6f533b",
   navy: "#1f2a4a",
   muted: "#7f8ba5",
   border: "#e9ebf3",
@@ -34,13 +34,13 @@ const theme = {
 
 /* Reusable Tailwind class strings */
 const inputCls =
-  "w-full rounded-[10px] border border-[#e9ebf3] bg-[#f5f6fb] px-3.5 py-2.5 text-sm text-[#1f2a4a] outline-none transition placeholder:text-[#a9b2c7] focus:border-[#6f533b] focus:bg-white focus:ring-4 focus:ring-[#6f533b]/20 disabled:cursor-not-allowed disabled:bg-[#eef0f6] disabled:text-[#7f8ba5]";
+  "w-full rounded-[10px] border border-[#e9ebf3] bg-[#f5f6fb] px-3.5 py-2.5 text-sm text-[#1f2a4a] outline-none transition placeholder:text-[#a9b2c7]  disabled:cursor-not-allowed disabled:bg-[#eef0f6] disabled:text-[#7f8ba5]";
 const labelCls = "mb-1.5 block text-[13px] font-semibold text-[#1f2a4a]";
 const btnBase =
   "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-[10px] px-[18px] py-[9px] text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60";
-const btnPrimary = `${btnBase} bg-[#6f533b] text-white shadow-[0_6px_14px_rgba(233,138,155,0.3)] hover:bg-[#d9748a]`;
-const btnOutline = `${btnBase} border border-[#e9ebf3] bg-white text-[#8c2f3f] hover:border-[#6f533b] hover:bg-[#fbeef0]`;
-const btnSoft = `${btnBase} border border-[#e8cdd1] bg-[#e8cdd1] text-[#8c2f3f] hover:bg-[#dfbcc2]`;
+const btnPrimary = `${btnBase} bg-[#6f533b] text-white shadow-[0_6px_14px_rgba(233,138,155,0.3)]`;
+const btnOutline = `${btnBase} border border-[#e9ebf3] bg-white text-[#5a432f] hover:border-[#6f533b] hover:bg-[#fbeef0]`;
+const btnSoft = `${btnBase} border border-[#e8cdd1] bg-[#6f533b] text-[#fff] `;
 const actBase =
   "inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition";
 
@@ -92,7 +92,7 @@ const tableCustomStyles = {
       },
     },
     highlightOnHoverStyle: {
-      backgroundColor: "#fdf6f7",
+      backgroundColor: "#fff9ef",
       transitionDuration: "0.15s",
       outline: "none",
     },
@@ -117,14 +117,14 @@ function Modal({ title, onClose, disabled, size = "max-w-lg", children, footer }
       <div
         className={`w-full ${size} overflow-hidden rounded-2xl bg-white shadow-[0_20px_50px_rgba(31,42,74,0.2)]`}
       >
-        <div className="flex items-center justify-between bg-[#e8cdd1] px-6 py-[18px]">
-          <h5 className="text-lg font-bold text-[#8c2f3f]">{title}</h5>
+        <div className="flex items-center justify-between bg-[#5a432f] px-6 py-[18px]">
+          <h5 className="text-lg font-bold text-[#fff]">{title}</h5>
           <button
             type="button"
             onClick={onClose}
             disabled={disabled}
             aria-label="Close"
-            className="cursor-pointer text-2xl leading-none text-[#8c2f3f] transition hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
+            className="cursor-pointer text-2xl leading-none text-[#fff] transition  disabled:cursor-not-allowed disabled:opacity-40"
           >
             &times;
           </button>
@@ -671,7 +671,7 @@ function ViewInventory() {
         selector: (row) => row.sku || row.variantId?.sku || "N/A",
         sortable: true,
         cell: (row) => (
-          <span className="rounded-md bg-[#fbeef0] px-2.5 py-1 font-mono text-xs text-[#b5576a]">
+          <span className="rounded-md bg-[#f0e5d3] px-2.5 py-1 font-mono text-xs text-[#6f533b]">
             {row.sku || row.variantId?.sku || "N/A"}
           </span>
         ),
@@ -750,7 +750,7 @@ function ViewInventory() {
             <button
               type="button"
               onClick={() => openAdjustmentModal(row)}
-              className={`${actBase} border border-[#6f533b] bg-white text-[#d9748a] hover:bg-[#6f533b] hover:text-white`}
+              className={`${actBase} border border-[#6f533b] bg-white text-[#6f533b]`}
             >
               <i className="fa fa-edit"></i>
               Adjust
@@ -789,10 +789,10 @@ function ViewInventory() {
       {/* HEADER */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3.5">
         <div>
-          <h1 className="mb-1 text-[28px] font-bold text-[#6f533b]">
+          <h1 className="mb-1 text-[28px] font-bold text-[#000]">
             Inventory Management
           </h1>
-          <p className="text-sm text-[#7f8ba5]">
+          <p className="text-sm text-[#000]">
             Manage product stock across warehouses
           </p>
         </div>

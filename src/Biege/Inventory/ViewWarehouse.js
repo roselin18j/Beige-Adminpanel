@@ -15,8 +15,8 @@ const initialValues = {
 
 /* Theme colours (used by the DataTable customStyles, which can't take classes) */
 const theme = {
-  headBg: "#e8cdd1",
-  headText: "#8c2f3f",
+  headBg: "#f0e5d3",
+  headText: "#6f533b",
   navy: "#1f2a4a",
   muted: "#7f8ba5",
   border: "#e9ebf3",
@@ -27,7 +27,7 @@ const inputCls =
   "w-full rounded-[10px] border border-[#e9ebf3] bg-[#f5f6fb] px-3.5 py-2.5 text-sm text-[#1f2a4a] outline-none transition placeholder:text-[#a9b2c7] focus:border-[#6f533b] focus:bg-white focus:ring-4 focus:ring-[#6f533b]/20";
 const labelCls = "mb-1.5 block text-[13px] font-semibold text-[#1f2a4a]";
 const btnPrimary =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-[#6f533b] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_14px_rgba(233,138,155,0.35)] transition hover:bg-[#d9748a] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-[#6f533b] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_14px_rgba(233,138,155,0.35)] transition hover:bg-[#5a432f] disabled:cursor-not-allowed disabled:opacity-60";
 const btnGhost =
   "inline-flex items-center justify-center whitespace-nowrap rounded-[10px] border border-[#e9ebf3] bg-white px-5 py-2.5 text-sm font-semibold text-[#1f2a4a] transition hover:bg-[#f5f6fb]";
 
@@ -302,6 +302,7 @@ function ViewWarehouse() {
     {
       name: "Status",
       selector: (row) => row.status,
+      width: "130px",
       cell: (row) => (
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide ${
@@ -317,6 +318,7 @@ function ViewWarehouse() {
     },
     {
       name: "Default",
+      width: "130px",
       selector: (row) => row.isDefault,
       center: true,
       cell: (row) =>
@@ -347,7 +349,7 @@ function ViewWarehouse() {
           <button
             type="button"
             onClick={() => handleEdit(row._id)}
-            className="cursor-pointer rounded-lg border border-[#6f533b] bg-[#6f533b] px-3 py-1.5 text-xs font-semibold text-white transition hover:border-[#d9748a] hover:bg-[#d9748a]"
+            className="cursor-pointer rounded-lg border border-[#6f533b] bg-[#6f533b] px-3 py-1.5 text-xs font-semibold text-white transition hover:border-[#5a432f] hover:bg-[#5a432f]"
           >
             Edit
           </button>
@@ -390,7 +392,7 @@ function ViewWarehouse() {
         },
       },
       highlightOnHoverStyle: {
-        backgroundColor: "#fdf6f7",
+        backgroundColor: "#fff9ef",
         transitionDuration: "0.15s",
         outline: "none",
       },
@@ -413,10 +415,10 @@ function ViewWarehouse() {
       {/* PAGE HEADER */}
       <div className="mb-[22px] flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="mb-1 text-[28px] font-bold text-[#6f533b]">
+          <h1 className="mb-1 text-[28px] font-bold text-[#000]">
             Warehouse Management
           </h1>
-          <p className="text-sm text-[#7f8ba5]">Manage your warehouse locations</p>
+          <p className="text-sm text-[#000]">Manage your warehouse locations</p>
         </div>
 
         {!showForm && warehouses.length === 0 && !loading && (
@@ -430,11 +432,11 @@ function ViewWarehouse() {
       {/* CREATE / EDIT PAGE */}
       {showForm ? (
         <div className="overflow-hidden rounded-2xl border border-[#e9ebf3] bg-white shadow-[0_4px_18px_rgba(31,42,74,0.04)]">
-          <div className="bg-[#e8cdd1] px-6 py-5">
-            <h5 className="text-lg font-bold text-[#8c2f3f]">
+          <div className="bg-[#5a432f] px-6 py-5">
+            <h5 className="text-lg font-bold text-[#fff]">
               {editId ? "Edit Warehouse" : "Create Warehouse"}
             </h5>
-            <span className="text-[13px] text-[#8c2f3f]/80">
+            <span className="text-[13px] text-[#fff]/80">
               Fields marked with * are required
             </span>
           </div>

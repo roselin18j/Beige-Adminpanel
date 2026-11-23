@@ -13,23 +13,27 @@ function Forgetpassword() {
       email: Yup.string().email("Invalid email").required("Email is required"),
     }),
     onSubmit: async (values) => {
-      const datas = new FormData();
-      datas.append("email", values.email);
       try {
-        let params = {
+        const params = {
           url: "admin-forget-password",
           method: "POST",
-          data: datas,
+          data: {
+            email: values.email.trim().toLowerCase(),
+          },
         };
+
         const response = await makeApiRequest(params);
-        if (response.status == true) {
-          localStorage.setItem("setToken", response.usertoken);
+
+        if (response.status === true) {
           toast.success(response.message);
         } else {
           toast.error(response.message);
         }
       } catch (error) {
-        toast.error("Something Went Wrong...");
+        console.error("Forgot password error:", error);
+        toast.error(
+          error.response?.data?.message || "Something Went Wrong..."
+        );
       }
     },
   });

@@ -40,12 +40,18 @@ function Resetpassword() {
       datas.append("password", values.password);
       datas.append("confirmPassword", values.confirmPassword);
       datas.append("token", token);
+
       try {
         let params = {
           url: "admin-reset-password",
           method: "POST",
-          data: datas,
+          data: {
+            password:values.password ,
+            confirmPassword:values.confirmPassword,
+            token
+          },
         };
+
         const response = await makeApiRequest(params);
         if (response.status == true) {
           toast.success(response.message);
@@ -150,7 +156,7 @@ function Resetpassword() {
                           )}
                         </span>
                         {formik.touched.confirmPassword &&
-                        formik.errors.confirmPassword ? (
+                          formik.errors.confirmPassword ? (
                           <div className="text-danger">
                             {formik.errors.confirmPassword}
                           </div>

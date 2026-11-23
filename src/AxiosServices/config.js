@@ -1,14 +1,6 @@
-let config = {};
-let environment = "local";
-if (environment == "local") {
-  config = {
-    adminBackendUrl: "http://localhost:3003/admin/",
-  };
-} else {
-  config = {
-    adminBackendUrl: "https://new-me.in/admin/",
-  };
-}
+
+const config = {
+  adminBackendUrl: "http://localhost:4000/admin/",
+};
+
 export default config;
-
-

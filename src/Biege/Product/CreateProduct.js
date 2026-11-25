@@ -38,7 +38,6 @@ function CreateProduct() {
     return () => URL.revokeObjectURL(previewUrl);
   }, [formData.image]);
 
-  // GET ACTIVE CATEGORIES
   const getCategories = async () => {
     try {
       setCategoryLoading(true);
@@ -48,6 +47,8 @@ function CreateProduct() {
         method: "GET",
       });
 
+
+      console.log('response------------', response)
       if (response.status) {
         const categoryData = Array.isArray(response.data)
           ? response.data
@@ -72,6 +73,7 @@ function CreateProduct() {
 
   useEffect(() => {
     getCategories();
+    console.log('use effect')
   }, []);
 
   // Handle normal input changes

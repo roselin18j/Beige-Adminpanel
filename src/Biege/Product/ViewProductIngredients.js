@@ -15,7 +15,6 @@ function ViewProductIngredients() {
 
   const [ingredients, setIngredients] = useState(null);
   const [loading, setLoading] = useState(false);
-  console.log('ingredients111111111111111--', ingredients)
   useEffect(() => {
     getIngredients();
   }, [id]);
@@ -30,6 +29,8 @@ function ViewProductIngredients() {
         method: "GET",
       });
 
+
+      console.log('response-----------', response)
       if (response?.status) {
         setIngredients(response.data);
       } else {
@@ -125,7 +126,7 @@ function ViewProductIngredients() {
             <div className="col-md-4">
               <label className="form-label fw-bold">Product Name</label>
               <p className="form-control bg-light">
-                {ingredients.productId?.name || "N/A"}
+                {ingredients.productId?.productname || "N/A"}
               </p>
             </div>
 
@@ -139,7 +140,7 @@ function ViewProductIngredients() {
             <div className="col-md-4">
               <label className="form-label fw-bold">Product Type</label>
               <p className="form-control bg-light">
-                {ingredients.productId?.type || "N/A"}
+                {ingredients.productId?.productType || "N/A"}
               </p>
             </div>
           </div>

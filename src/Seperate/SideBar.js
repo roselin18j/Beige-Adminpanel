@@ -60,9 +60,6 @@ import ExpiryManagement from "../Biege/Inventory/ExpiryManagement";
 import Dashboard from "../Dashboard";
 
 
-// ======================================================
-// ADD PRODUCT STEP
-// ======================================================
 
 function AddProductStep() {
   const { productId, tab } = useParams();
@@ -95,21 +92,11 @@ function AddProductStep() {
       break;
 
     default:
-      return (
-        <Navigate
-          to={`/add-product/${productId}/basic`}
-          replace
-        />
-      );
+      return <Navigate to={`/add-product/${productId}/basic`} replace />;
   }
 
   return <ProductPageLayout>{content}</ProductPageLayout>;
 }
-
-
-// ======================================================
-// EDIT PRODUCT STEP
-// ======================================================
 
 function EditProductStep() {
   const { id, tab } = useParams();
@@ -146,38 +133,31 @@ function EditProductStep() {
       break;
 
     default:
-      return (
-        <Navigate
-          to={`/edit-product/${id}/product`}
-          replace
-        />
-      );
+      return <Navigate to={`/edit-product/${id}/product`} replace />;
   }
 
   return <ProductPageLayout>{content}</ProductPageLayout>;
 }
 
 
-// ======================================================
-// SIDEBAR COMPONENT
-// ======================================================
+function EditProductRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/edit-product/${id}/product`} replace />;
+}
+
+
 
 function SideBar() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // Mobile drawer open / close
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close the drawer whenever the page changes
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  // ====================================================
-  // MODULE PERMISSIONS
-  // ====================================================
-
+  // Module permissions
   const [allowedModules, setAllowedModules] = useState([]);
   const [loadingPermissions, setLoadingPermissions] = useState(true);
 
@@ -189,11 +169,8 @@ function SideBar() {
           method: "GET",
         });
 
-        // Supports both direct response and Axios response formats
         const responseBody =
-          response?.data?.success !== undefined
-            ? response.data
-            : response;
+          response?.data?.success !== undefined ? response.data : response;
 
         if (responseBody?.success) {
           setAllowedModules(responseBody.data?.modules || []);
@@ -217,19 +194,21 @@ function SideBar() {
   };
 
 
-  // ====================================================
-  // LOGOUT
-  // ====================================================
-
-  const logOut = () => {
-    localStorage.clear();
-    window.location.href = "/";
+  const logOut = async () => {
+    try {
+      await makeApiRequest({
+        url: "admin-logout",
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.clear();
+      window.location.href = "/";
+    }
   };
 
-
-  // ====================================================
-  // PRODUCT PAGES
-  // ====================================================
+  /* ---------------- Active-state checks ---------------- */
 
   const isProductPage =
     pathname === "/view-product" ||
@@ -254,36 +233,22 @@ function SideBar() {
     pathname === "/product-pricing" ||
     pathname === "/product-ai-tags";
 
-
-  // ====================================================
-  // SUB ADMIN PAGES
-  // ====================================================
-
   const isSubAdminPage =
     pathname === "/permissionmodule" ||
     pathname === "/view-subadmin" ||
     pathname === "/add-subadmin" ||
     pathname.startsWith("/edit-subadmin/");
 
-
-  // ====================================================
-  // OTHER MODULE PAGES
-  // ====================================================
-
   const isCategoryPage = pathname === "/view-categories";
 
   const isCollection = pathname === "/collections";
 
   const isInventory =
-    pathname === "/inventory" ||
-    pathname === "/expiry-management";
+    pathname === "/inventory" || pathname === "/expiry-management";
 
   const isWarehouse = pathname === "/warehouse";
 
-
-  // ====================================================
-  // MENU ITEMS (module = null means always visible)
-  // ====================================================
+  /* ---------------- Menu ---------------- */
 
   const menuItems = [
     { label: "Dashboard", to: "/dashboard", module: null, active: pathname === "/dashboard" },
@@ -298,16 +263,11 @@ function SideBar() {
   const linkBase =
     "mx-2.5 flex items-center rounded-full px-4 py-[15px] text-[15px] leading-none text-black no-underline transition";
 
-
-  // ====================================================
-  // SIDEBAR UI (Tailwind)
-  // ====================================================
+  /* ---------------- Render ---------------- */
 
   return (
     <div className="min-h-screen bg-[#f5f6fb]">
-
-      {/* ================= MOBILE MENU BUTTON ================= */}
-
+      {/* Mobile menu button */}
       <button
         type="button"
         aria-label="Open menu"
@@ -317,8 +277,7 @@ function SideBar() {
         <GrMenu className="[&_path]:stroke-white" />
       </button>
 
-      {/* ================= MOBILE OVERLAY ================= */}
-
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-[#1f2a4a]/45 lg:hidden"
@@ -326,15 +285,13 @@ function SideBar() {
         />
       )}
 
-      {/* ================= SIDEBAR ================= */}
-
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[220px] overflow-y-auto bg-[#f0e5d3] pb-6 transition-transform duration-200 lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-[220px] overflow-y-auto bg-[#f0e5d3] pb-6 transition-transform duration-200 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Logo + mobile close */}
-        <div className="mb-3 flex items-center justify-between px-3 md:px-[5px]  pb-2 pt-4">
+        <div className="mb-3 flex items-center justify-between px-3 md:px-[5px] pb-2 pt-4">
           <Link
             to="/dashboard"
             className="font-['Playfair_Display',serif] text-[26px] md:text-[30px] lg:text-[38px] font-bold leading-none tracking-wide text-[#5a432f] no-underline"
@@ -356,7 +313,10 @@ function SideBar() {
           <ul className="m-0 flex list-none flex-col gap-[7px] p-0">
             {menuItems.map((item) => {
               // Dashboard is always visible, others need module access
-              if (item.module && (loadingPermissions || !hasModuleAccess(item.module))) {
+              if (
+                item.module &&
+                (loadingPermissions || !hasModuleAccess(item.module))
+              ) {
                 return null;
               }
 
@@ -364,11 +324,10 @@ function SideBar() {
                 <li key={item.to}>
                   <Link
                     to={item.to}
-                    className={`${linkBase} ${
-                      item.active
+                    className={`${linkBase} ${item.active
                         ? "bg-[#6f533b] font-medium shadow-[0_4px_10px_rgba(233,138,155,0.3)] text-white"
                         : "hover:bg-white/40"
-                    }`}
+                      }`}
                   >
                     {item.label}
                   </Link>
@@ -376,8 +335,7 @@ function SideBar() {
               );
             })}
 
-            {/* ================= LOGOUT ================= */}
-
+            {/* Logout */}
             <li className="mt-2 border-t border-black/10 pt-2">
               <button
                 type="button"
@@ -392,41 +350,19 @@ function SideBar() {
         </nav>
       </aside>
 
-
-
-
+      {/* Page content */}
       <main className="min-h-screen pt-14 lg:ml-[220px] lg:pt-0">
-
         <Routes>
-          <Route
-            path="/dashboard"
-            element={<Dashboard />}
-          />
+          {/* Dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
+          {/* Sub admin */}
+          <Route path="/add-subadmin" element={<AddSubadmin />} />
+          <Route path="/view-subadmin" element={<ViewSubAdmin />} />
+          <Route path="/edit-subadmin/:adminId" element={<EditSubAdmin />} />
 
-
-          <Route
-            path="/add-subadmin"
-            element={<AddSubadmin />}
-          />
-
-          <Route
-            path="/view-subadmin"
-            element={<ViewSubAdmin />}
-          />
-
-          <Route
-            path="/edit-subadmin/:adminId"
-            element={<EditSubAdmin />}
-          />
-
-
-  
-
-          <Route
-            path="/view-product"
-            element={<ViewProduct />}
-          />
+          {/* Product */}
+          <Route path="/view-product" element={<ViewProduct />} />
 
           <Route
             path="/product-basics"
@@ -492,18 +428,9 @@ function SideBar() {
             element={<AddProductStep />}
           />
 
-          <Route
-            path="/edit-product/:id"
-            element={<Navigate to="product" replace />}
-          />
+          <Route path="/edit-product/:id" element={<EditProductRedirect />} />
 
-          <Route
-            path="/edit-product/:id/:tab"
-            element={<EditProductStep />}
-          />
-
-
-
+          <Route path="/edit-product/:id/:tab" element={<EditProductStep />} />
 
           <Route
             path="/product-media"
@@ -541,7 +468,7 @@ function SideBar() {
             }
           />
 
-
+          {/* Product variants */}
           <Route
             path="/product-variants"
             element={
@@ -577,8 +504,6 @@ function SideBar() {
               </ProductPageLayout>
             }
           />
-
-
 
           <Route
             path="/product-ingredients"
@@ -616,40 +541,15 @@ function SideBar() {
             }
           />
 
+          <Route path="/view-categories" element={<ViewCategories />} />
+          <Route path="/collections" element={<ViewCollections />} />
 
+          <Route path="/inventory" element={<ViewInventory />} />
+          <Route path="/expiry-management" element={<ExpiryManagement />} />
+          <Route path="/warehouse" element={<ViewWarehouse />} />
 
-          <Route
-            path="/view-categories"
-            element={<ViewCategories />}
-          />
-
-
-
-          <Route
-            path="/collections"
-            element={<ViewCollections />}
-          />
-
-
-
-          <Route
-            path="/inventory"
-            element={<ViewInventory />}
-          />
-
-          <Route
-            path="/expiry-management"
-            element={<ExpiryManagement />}
-          />
-
-
-          <Route
-            path="/warehouse"
-            element={<ViewWarehouse />}
-          />
-
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-
       </main>
     </div>
   );

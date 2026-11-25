@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
@@ -22,57 +21,114 @@ function ProductIngredients() {
     getIngredients();
   }, []);
 
-  // GET ALL PRODUCT INGREDIENTS
   const getIngredients = async () => {
     try {
       setLoading(true);
 
-      const response = await makeApiRequest({
-        url: "getproduct-ingredients",
+      const productResponse = await makeApiRequest({
+        url: "getproduct",
         method: "GET",
       });
 
-      if (response?.status) {
-        setIngredients(response.data || []);
-      } else {
+      if (
+        !productResponse?.status ||
+        !Array.isArray(productResponse.data)
+      ) {
         setIngredients([]);
-        toast.error(
-          response?.message || "Failed to fetch product ingredients"
-        );
+        toast.error(productResponse?.message || "Products not found");
+        return;
       }
+
+      const products = productResponse.data;
+
+      const ingredientResults = await Promise.all(
+        products.map(async (product) => {
+          try {
+            const response = await makeApiRequest({
+              url: `getproduct-ingredients/${product._id}`,
+              method: "GET",
+            });
+
+            if (!response?.status || !response.data) {
+              return null;
+            }
+
+            const ingredient = Array.isArray(response.data)
+              ? response.data[0]
+              : response.data;
+
+            if (!ingredient) {
+              return null;
+            }
+
+            return {
+              ...ingredient,
+              productId: {
+                _id: product._id,
+                name:
+                  product.name ||
+                  product.productname ||
+                  product.productName ||
+                  "N/A",
+                type:
+                  product.type ||
+                  product.productType ||
+                  "N/A",
+              },
+            };
+          } catch (error) {
+            return null;
+          }
+        })
+      );
+
+      setIngredients(ingredientResults.filter(Boolean));
     } catch (error) {
       console.error("Get ingredients error:", error);
+
+      setIngredients([]);
+
       toast.error(
         error?.response?.data?.message ||
-        "Failed to fetch product ingredients"
+          "Failed to fetch product ingredients"
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // DELETE INGREDIENTS
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete these ingredients?")) {
+  const handleDelete = async (productId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete these ingredients?"
+      )
+    ) {
       return;
     }
 
     try {
       const response = await makeApiRequest({
-        url: `deleteproduct-ingredients/${id}`,
+        url: `deleteproduct-ingredients/${productId}`,
         method: "DELETE",
       });
 
       if (response?.status) {
-        toast.success(response.message || "Ingredients deleted successfully");
+        toast.success(
+          response.message || "Ingredients deleted successfully"
+        );
+
         getIngredients();
       } else {
-        toast.error(response?.message || "Failed to delete ingredients");
+        toast.error(
+          response?.message || "Failed to delete ingredients"
+        );
       }
     } catch (error) {
       console.error("Delete ingredients error:", error);
+
       toast.error(
-        error?.response?.data?.message || "Failed to delete ingredients"
+        error?.response?.data?.message ||
+          "Failed to delete ingredients"
       );
     }
   };
@@ -111,7 +167,13 @@ function ProductIngredients() {
       name: "Fragrance Free",
       center: true,
       cell: (row) => (
-        <span className={`badge ${row.freeFrom?.fragranceFree ? "bg-success" : "bg-secondary"}`}>
+        <span
+          className={`badge ${
+            row.freeFrom?.fragranceFree
+              ? "bg-success"
+              : "bg-secondary"
+          }`}
+        >
           {row.freeFrom?.fragranceFree ? "Yes" : "No"}
         </span>
       ),
@@ -120,7 +182,13 @@ function ProductIngredients() {
       name: "Paraben Free",
       center: true,
       cell: (row) => (
-        <span className={`badge ${row.freeFrom?.parabenFree ? "bg-success" : "bg-secondary"}`}>
+        <span
+          className={`badge ${
+            row.freeFrom?.parabenFree
+              ? "bg-success"
+              : "bg-secondary"
+          }`}
+        >
           {row.freeFrom?.parabenFree ? "Yes" : "No"}
         </span>
       ),
@@ -129,64 +197,65 @@ function ProductIngredients() {
       name: "Actions",
       width: "190px",
       center: true,
-      cell: (row) => (
-        <div className="d-flex align-items-center justify-content-center gap-2">
-          {/* VIEW */}
-          <button
-            type="button"
-            title="View"
-            onClick={() =>
-              navigate(`/view-product-ingredients/${row.productId?._id}`)
-            }
-            style={{
-              width: "34px",
-              height: "34px",
-              border: "none",
-              borderRadius: "5px",
-              backgroundColor: "#0dcaf0",
-              color: "#fff",
-            }}
-          >
-            <FontAwesomeIcon icon={faEye} />
-          </button>
+      cell: (row) => {
+        const productId = row.productId?._id;
 
-          {/* EDIT */}
-          <button
-            type="button"
-            title="Edit"
-            onClick={() =>
-              navigate(`/edit-product-ingredients/${row.productId?._id}`)
-            }
-            style={{
-              width: "34px",
-              height: "34px",
-              border: "none",
-              borderRadius: "5px",
-              backgroundColor: "#0d6efd",
-              color: "#fff",
-            }}
-          >
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </button>
+        return (
+          <div className="d-flex align-items-center justify-content-center gap-2">
+            <button
+              type="button"
+              title="View"
+              onClick={() =>
+                navigate(`/view-product-ingredients/${productId}`)
+              }
+              style={{
+                width: "34px",
+                height: "34px",
+                border: "none",
+                borderRadius: "5px",
+                backgroundColor: "#0dcaf0",
+                color: "#fff",
+              }}
+            >
+              <FontAwesomeIcon icon={faEye} />
+            </button>
 
-          {/* DELETE */}
-          <button
-            type="button"
-            title="Delete"
-            onClick={() => handleDelete(row.productId?._id)}
-            style={{
-              width: "34px",
-              height: "34px",
-              border: "none",
-              borderRadius: "5px",
-              backgroundColor: "#dc3545",
-              color: "#fff",
-            }}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
-        </div>
-      ),
+            <button
+              type="button"
+              title="Edit"
+              onClick={() =>
+                navigate(`/edit-product-ingredients/${productId}`)
+              }
+              style={{
+                width: "34px",
+                height: "34px",
+                border: "none",
+                borderRadius: "5px",
+                backgroundColor: "#0d6efd",
+                color: "#fff",
+              }}
+            >
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </button>
+
+            <button
+              type="button"
+              title="Delete"
+              onClick={() => handleDelete(productId)}
+              style={{
+                width: "34px",
+                height: "34px",
+                border: "none",
+                borderRadius: "5px",
+                backgroundColor: "#dc3545",
+                color: "#fff",
+              }}
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+        );
+      },
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -213,6 +282,7 @@ function ProductIngredients() {
           <DataTable
             columns={columns}
             data={ingredients}
+            keyField="_id"
             progressPending={loading}
             pagination
             highlightOnHover
@@ -227,3 +297,4 @@ function ProductIngredients() {
 }
 
 export default ProductIngredients;
+

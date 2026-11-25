@@ -1,53 +1,103 @@
+
 import axios from "axios";
 import config from "./config";
 
 export const makeApiRequest = async (params) => {
   try {
-    let headerContentType = "application/json";
-    if (params.header == "image") {
-      headerContentType = "multipart/form-data";
+    const method = params.method.toUpperCase();
+
+    const getToken = localStorage.getItem("token");
+    console.log('getToken', getToken)
+
+    const headers = {};
+
+    if (getToken) {
+      headers.Authorization = `Bearer ${getToken}`;
     }
-    let getToken = localStorage.getItem("token");
-    const token = getToken != null ? getToken : "";
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": headerContentType,
-      "Access-Control-Allow-Headers": "*",
-      Authorization: `Bearer ${token}`,
+
+    const isFormData =
+      typeof FormData !== "undefined" &&
+      params.data instanceof FormData;
+
+    if (!isFormData && params.header !== "image") {
+      headers["Content-Type"] = "application/json";
+    }
+
+    // const baseUrl = config.adminBackendUrl.replace(/\/+$/, "");
+    // const endpoint = params.url.replace(/^\/+/, "");
+    // const apiUrl = `${baseUrl}/${endpoint}`;
+    // console.log('apiUrl--------', apiUrl)
+
+
+    const baseUrl = config.adminBackendUrl.replace(/\/+$/, "");
+    let endpoint = params.url.replace(/^\/+/, "");
+    if (baseUrl.endsWith("/admin")) {
+      endpoint = endpoint.replace(/^admin\/+/i, "");
+    }
+    const apiUrl = `${baseUrl}/${endpoint}`;
+
+
+    const requestConfig = {
+      headers,
+      withCredentials: true,
     };
+
     let response;
-    switch (params.method.toUpperCase()) {
+
+    switch (method) {
       case "GET":
-        response = await axios.get(`${config.adminBackendUrl}${params.url}`, {
-          headers,
-        });
+        response = await axios.get(apiUrl, requestConfig);
         break;
+
       case "POST":
+
         response = await axios.post(
-          `${config.adminBackendUrl}${params.url}`,
+          apiUrl,
           params.data,
-          { headers },
+          requestConfig
         );
+
+        console.log('response', response)
+
         break;
+
       case "PUT":
         response = await axios.put(
-          `${config.adminBackendUrl}${params.url}`,
+          apiUrl,
           params.data,
-          { headers },
+          requestConfig
         );
         break;
+
+      case "PATCH":
+        response = await axios.patch(
+          apiUrl,
+          params.data,
+          requestConfig
+        );
+        break;
+
       case "DELETE":
-        response = await axios.delete(
-          `${config.adminBackendUrl}${params.url}`,
-          { headers },
-        );
+        response = await axios.delete(apiUrl, {
+          ...requestConfig,
+          ...(params.data && {
+            data: params.data,
+          }),
+        });
         break;
+
       default:
-        throw new Error(`Unsupported method: ${params.method}`);
+        throw new Error(`Unsupported method: ${method}`);
     }
+
     return response.data;
+
   } catch (error) {
-    console.log("axios error", error);
+    console.error(
+      "Axios API Error:",
+      error.response?.data || error.message
+    );
+
     throw error;
   }
 };

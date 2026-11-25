@@ -1,11 +1,12 @@
+
 import React, { useEffect, useState } from "react";
 import "../Assets/css/sign.css";
 import frame2 from "../Assets/images/mobile-login.png";
 import { BsFillEyeFill, BsFillEyeSlashFill } from "react-icons/bs";
 import Profile from "../Assets/images/profile.png";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { makeApiRequest } from "../AxiosServices/apiCall";
 
 function Login() {
@@ -14,107 +15,108 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState("");
-  const [socialMediaLinks, setSocialMediaLinks] = useState([]);
-  const [sitename, setSitename] = useState([]);
-  const [siteyear, setSiteyear] = useState([]);
+  const [loginError, setLoginError] = useState({});
+  const [sitename, setSitename] = useState("");
+  const [siteyear, setSiteyear] = useState("");
 
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setShowPassword((prev) => !prev);
   };
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+
 
   async function handleLoginSubmit(event) {
     event.preventDefault();
+
     const validationErrors = {};
 
+    if (!email.trim()) {
+      validationErrors.email = "Email is required";
+    } else if (!isValidEmail(email.trim())) {
+      validationErrors.email = "Invalid email format";
+    }
+
+    if (!password) {
+      validationErrors.password = "Password is required";
+    }
+
+    setLoginError(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) return;
+
     try {
-      if (!email) {
-        validationErrors.email = "Email is required";
-      } else if (!isValidEmail(email)) {
-        validationErrors.email = "Invalid email format";
-      }
-
-      if (!password) {
-        validationErrors.password = "Password is required";
-      }
-      setLoginError(validationErrors);
-
-      if (Object.keys(validationErrors).length > 0) {
-        setLoginError(validationErrors);
-      } else {
-        let payload = {
-          email,
+      const params = {
+        url: "admin-login",
+        method: "POST",
+        data: {
+          email: email.trim().toLowerCase(),
           password,
-          // ipAddress
-        };
+        },
+      };
 
-        let params = {
-          url: `admin-login`,
-          method: "POST",
-          data: payload,
-        };
-        const response = await makeApiRequest(params);
+      console.log("Sending login request");
 
-        if (response.data && response.data.email) {
-          const email = response.data.email;
-          const token = response.token;
-          localStorage.setItem("email", email);
-          localStorage.setItem("token", token);
-        }
-        const gettoken = localStorage.getItem("token");
+      const response = await makeApiRequest(params);
 
-        if (response.status == true) {
-          toast.success(response.message);
-          setTimeout(() => {
-            {
-              gettoken ? navigate("/dashboard") : navigate("/");
-            }
-          }, 1000);
-        } else {
-          toast.warn(response.message);
-        }
+      console.log("Login API Response:", response);
+
+      if (response?.status !== true) {
+        toast.error(response?.message || "Invalid login credentials");
+        return;
       }
+
+      const userData = response.data || response.user || {};
+
+      localStorage.setItem("email", userData.email || "");
+      localStorage.setItem("name", userData.name || "");
+      localStorage.setItem("role", userData.role || "");
+
+      toast.success(response.message || "Login successful");
+
+      console.log("Navigating to dashboard");
+
+      navigate("/dashboard", { replace: true });
+
     } catch (error) {
-      console.log(error);
-      if (error.response) {
-        const { data } = error.response;
-        if (data) {
-          toast.error(data);
-        } else {
-          toast.error("An error occurred while processing your request.");
-        }
-      } else {
-        toast.error("An unexpected error occurred.");
-      }
+      console.error(
+        "Login Error:",
+        error.response?.data || error.message
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+        "An error occurred while processing your request."
+      );
     }
   }
 
-  const isValidEmail = (email) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
 
-  const isValidPassword = (password) => {
-    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!#%*?&.,])[A-Za-z\d@$#!%*?&,.]{8,}$/.test(
-      password,
-    );
-  };
   useEffect(() => {
     const fetchSocialMediaLinks = async () => {
       try {
-        let params = {
-          url: `siteAddress`,
+        const params = {
+          url: "siteAddress",
           method: "GET",
         };
-        let response = await makeApiRequest(params);
-        if (response) {
-          setSitename(response.data[0].siteName);
-          setSiteyear(response.data[0].siteYear);
-          console.log("responseso", response.data.siteyear);
+
+        const response = await makeApiRequest(params);
+
+        const siteData = Array.isArray(response?.data)
+          ? response.data[0]
+          : response?.data;
+
+        if (siteData) {
+          setSitename(siteData.siteName || "");
+          setSiteyear(siteData.siteYear || "");
         }
       } catch (error) {
-        console.error("Error fetching social media links:", error);
+        console.error("Error fetching site details:", error);
       }
     };
 
@@ -124,76 +126,100 @@ function Login() {
   return (
     <>
       <ToastContainer />
+
       <div className="App">
         <div className="container-fluid">
           <div className="custom-sign min-vh-100">
             <div className="row">
               <div className="col-lg-12">
                 <div className="row align-items-center">
+
                   <div className="col-lg-6 animi">
                     <div className="custom-sign-right">
                       <img
                         src={frame2}
-                        class="animated-image"
+                        className="animated-image"
                         alt="Animated Image"
-                      ></img>
+                      />
                     </div>
                   </div>
+
                   <div className="col-lg-5">
                     <div className="custom-inside-sign">
+
                       <div className="text-center">
-                        <img style={{ width: "50px" }} src={Profile}></img>
+                        <img
+                          style={{ width: "50px" }}
+                          src={Profile}
+                          alt="Profile"
+                        />
+
                         <p className="fw-bold">Login</p>
                       </div>
-                      <form>
-                        <div class="mb-3">
+
+                      <form onSubmit={handleLoginSubmit}>
+
+                        {/* Email */}
+                        <div className="mb-3">
+
                           <label
-                            for="exampleInputEmail1"
-                            class="form-label fw-bold"
+                            htmlFor="exampleInputEmail1"
+                            className="form-label fw-bold"
                           >
                             Email
                           </label>
+
                           <input
                             type="email"
-                            class="form-control custom-input"
+                            className="form-control custom-input"
                             id="exampleInputEmail1"
                             aria-describedby="emailHelp"
                             placeholder="Example@email.com"
                             value={email}
                             onChange={(e) => {
                               setEmail(e.target.value);
-                              setLoginError((prevErrors) => ({
-                                ...prevErrors,
+
+                              setLoginError((prev) => ({
+                                ...prev,
                                 email: "",
                               }));
                             }}
                           />
+
                           <span style={{ color: "red" }}>
-                            {" "}
-                            {loginError.email && <p>{loginError.email}</p>}
+                            {loginError.email && (
+                              <p>{loginError.email}</p>
+                            )}
                           </span>
+
                         </div>
+
+                        {/* Password */}
                         <div className="mb-3 position-relative">
+
                           <label
                             htmlFor="exampleInputPassword1"
                             className="form-label fw-bold"
                           >
                             Password
                           </label>
+
                           <input
                             type={showPassword ? "text" : "password"}
                             className="form-control custom-input"
                             id="exampleInputPassword1"
-                            placeholder="At least 8 characters"
+                            placeholder="Enter your password"
                             value={password}
                             onChange={(e) => {
                               setPassword(e.target.value);
-                              setLoginError((prevErrors) => ({
-                                ...prevErrors,
-                                email: "",
+
+                              setLoginError((prev) => ({
+                                ...prev,
+                                password: "",
                               }));
                             }}
                           />
+
                           <span
                             onClick={togglePasswordVisibility}
                             className="position-absolute"
@@ -209,13 +235,16 @@ function Login() {
                               <BsFillEyeSlashFill />
                             )}
                           </span>
+
                           <span style={{ color: "red" }}>
-                            {" "}
                             {loginError.password && (
                               <p>{loginError.password}</p>
                             )}
                           </span>
+
                         </div>
+
+                        {/* Forgot Password */}
                         <div className="text-end">
                           <Link to="/forgetpassword">
                             <p className="costom-forgot-color">
@@ -223,23 +252,33 @@ function Login() {
                             </p>
                           </Link>
                         </div>
+
+                        {/* Submit */}
                         <div className="text-center w-100">
                           <button
                             type="submit"
-                            class="custom-sign-btn w-100"
-                            onClick={handleLoginSubmit}
+                            className="custom-sign-btn w-100"
                           >
                             Submit
                           </button>
                         </div>
 
+                        {/* Footer */}
                         <div className="text-center">
-                          <p>@ {sitename + -siteyear} ALL RIGHTS RESERVED</p>
+                          <p>
+                            © {sitename} {siteyear || year} ALL RIGHTS RESERVED
+                          </p>
                         </div>
+
                       </form>
-                      <div>{/* <Darklight/> */}</div>
+
+                      <div>
+                        {/* <Darklight /> */}
+                      </div>
+
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>

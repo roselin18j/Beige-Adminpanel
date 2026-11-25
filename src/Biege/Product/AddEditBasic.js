@@ -103,6 +103,8 @@ function AddEditBasic() {
 
       const result = getResponseData(response);
 
+      console.log('result----------------', result)
+
       const productList = Array.isArray(result?.data)
         ? result.data
         : Array.isArray(result)

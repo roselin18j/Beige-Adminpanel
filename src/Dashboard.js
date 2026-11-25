@@ -111,6 +111,8 @@ function Dashboard() {
           method: "GET",
         });
 
+        console.log('response--------------', response)
+
         const result = getResponseBody(response);
 
         if (result?.status !== true) {
@@ -171,7 +173,6 @@ function Dashboard() {
     (card) => hasModuleAccess(card.module) && stats[card.statKey] !== undefined
   );
 
-  // ================= LOADING =================
 
   if (loading) {
     return (
@@ -187,7 +188,6 @@ function Dashboard() {
     );
   }
 
-  // ================= ERROR =================
 
   if (error) {
     return (
@@ -207,7 +207,6 @@ function Dashboard() {
     );
   }
 
-  // ================= PAGE =================
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] p-4 sm:p-7">

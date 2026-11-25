@@ -1,54 +1,52 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { makeApiRequest } from "../AxiosServices/apiCall";
 
-const ProtectedRoute = (props) => {
-  const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
+function ProtectedRoute({ children }) {
+  const [authenticated, setAuthenticated] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    let mounted = true;
+
+    const checkAuth = async () => {
       try {
-        const adminToken = localStorage.getItem("token");
+        const response = await makeApiRequest({
+          url: "admin-check-auth",
+          method: "GET",
+        });
 
-        if (!adminToken || adminToken === "undefined") {
-          localStorage.clear();
-          navigate("/", { replace: true });
-          return;
-        }
-
-        const params = {
-          url: "admin-auth",
-          method: "POST",
-        };
-
-        const response = await makeApiRequest(params);
-
-        if (response?.status) {
-          setIsLoggedIn(true);
-        } else {
-          localStorage.clear();
-          navigate("/", { replace: true });
+        if (mounted) {
+          setAuthenticated(response?.status === true);
         }
       } catch (error) {
-        console.log("An error occurred:", error.message);
-        localStorage.clear();
-        navigate("/", { replace: true });
-      } finally {
-        setIsChecking(false);
+        console.error(
+          "Authentication Error:",
+          error.response?.data || error.message
+        );
+
+        if (mounted) {
+          setAuthenticated(false);
+        }
       }
     };
 
-    fetchData();
-  }, [navigate]);
+    checkAuth();
 
-  if (isChecking) {
-    return null;
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (authenticated === null) {
+    return <div>Checking authentication...</div>;
   }
 
-  return isLoggedIn ? props.children : null;
-};
+  if (!authenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 export default ProtectedRoute;

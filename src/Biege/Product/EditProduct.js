@@ -78,7 +78,6 @@ function EditProduct() {
     }
   }, []);
 
-  // GET PRODUCT DETAILS BY ID
   const getProductById = useCallback(async () => {
     try {
       setFetchLoading(true);

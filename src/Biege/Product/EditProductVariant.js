@@ -32,6 +32,7 @@ function EditProductVariant() {
         method: "GET",
       });
 
+
       if (result?.status && Array.isArray(result.data)) {
         setProducts(result.data);
       }
@@ -42,6 +43,46 @@ function EditProductVariant() {
   };
 
   // GET SINGLE VARIANT
+  // const getVariant = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     const result = await makeApiRequest({
+  //       url: `getproduct-variant/${id}`,
+  //       method: "GET",
+  //     });
+
+
+  //     console.log('getproduct-variant/${id}',result)
+
+  //     if (result?.status && result.data) {
+  //       const variant = result.data;
+
+  //       setFormData({
+  //         product: variant.product?._id || variant.product || "",
+  //         variantType: variant.variantType || "",
+  //         variantName: variant.variantName || "",
+  //         sku: variant.sku || "",
+  //         price: variant.price ?? "",
+  //         stock: variant.stock ?? 0,
+  //         barcode: variant.barcode || "",
+  //       });
+  //     } else {
+  //       toast.error(result?.message || "Variant not found");
+  //       navigate("/product-variants");
+  //     }
+  //   } catch (error) {
+  //     console.log("Get variant error:", error);
+  //     toast.error(
+  //       error?.response?.data?.message || "Failed to fetch variant"
+  //     );
+  //     navigate("/product-variants");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
   const getVariant = async () => {
     try {
       setLoading(true);
@@ -51,11 +92,13 @@ function EditProductVariant() {
         method: "GET",
       });
 
-      if (result?.status && result.data) {
-        const variant = result.data;
+      console.log("Variant response:", result);
+
+      if (result?.status && Array.isArray(result.data) && result.data.length > 0) {
+        const variant = result.data[0];
 
         setFormData({
-          product: variant.product?._id || variant.product || "",
+          product: variant.productId?._id || variant.productId || "",
           variantType: variant.variantType || "",
           variantName: variant.variantName || "",
           sku: variant.sku || "",
@@ -77,6 +120,7 @@ function EditProductVariant() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     getProducts();
@@ -121,6 +165,7 @@ function EditProductVariant() {
           stock: Number(formData.stock || 0),
         },
       });
+
 
       if (result?.status) {
         toast.success(result.message || "Variant updated successfully");

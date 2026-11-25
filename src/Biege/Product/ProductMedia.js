@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
@@ -17,24 +18,62 @@ function ProductMedia() {
   const [mediaList, setMediaList] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // GET ALL PRODUCT MEDIA
   const getAllProductMedia = async () => {
     try {
       setLoading(true);
 
-      const result = await makeApiRequest({
-        url: "getproduct-media",
+      const productResult = await makeApiRequest({
+        url: "getproduct",
         method: "GET",
       });
 
-      if (result?.status && Array.isArray(result.data)) {
-        setMediaList(result.data);
-      } else {
+      if (!productResult?.status || !Array.isArray(productResult.data)) {
         setMediaList([]);
-        toast.error(result?.message || "Failed to fetch product media");
+        toast.error(productResult?.message || "Products not found");
+        return;
       }
+
+      const products = productResult.data;
+
+      const mediaResults = await Promise.all(
+        products.map(async (product) => {
+          try {
+            const result = await makeApiRequest({
+              url: `getproduct-media/${product._id}`,
+              method: "GET",
+            });
+
+            if (!result?.status || !result.data) {
+              return null;
+            }
+
+            const media = result.data;
+
+            return {
+              ...media,
+              productId: product._id,
+              productDetails: {
+                _id: product._id,
+                name:
+                  product.name ||
+                  product.productname ||
+                  product.productName ||
+                  "-",
+              },
+            };
+          } catch (error) {
+            // A product without media is excluded from the list.
+            return null;
+          }
+        })
+      );
+
+      setMediaList(mediaResults.filter(Boolean));
     } catch (error) {
       console.log("Get product media error:", error);
+
+      setMediaList([]);
+
       toast.error(
         error?.response?.data?.message || "Failed to fetch product media"
       );
@@ -47,7 +86,6 @@ function ProductMedia() {
     getAllProductMedia();
   }, []);
 
-  // DELETE PRODUCT MEDIA
   const handleDelete = async (productId) => {
     if (
       !window.confirm(
@@ -64,20 +102,23 @@ function ProductMedia() {
       });
 
       if (result?.status) {
-        toast.success(result.message || "Product media deleted successfully");
+        toast.success(
+          result.message || "Product media deleted successfully"
+        );
+
         getAllProductMedia();
       } else {
         toast.error(result?.message || "Delete failed");
       }
     } catch (error) {
       console.log("Delete media error:", error);
+
       toast.error(
         error?.response?.data?.message || "Failed to delete product media"
       );
     }
   };
 
-  // DATATABLE COLUMNS
   const columns = [
     {
       name: "S.No",
@@ -132,14 +173,13 @@ function ProductMedia() {
       width: "190px",
       center: true,
       cell: (row) => {
-        const productId = row.product?._id || row.product;
+        const productId = row.productId;
 
         return (
           <div
             className="d-flex align-items-center justify-content-center"
             style={{ gap: "8px", minWidth: "150px" }}
           >
-            {/* EDIT BUTTON */}
             <button
               type="button"
               title="Edit Media"
@@ -163,7 +203,6 @@ function ProductMedia() {
               <FontAwesomeIcon icon={faPenToSquare} />
             </button>
 
-            {/* VIEW BUTTON */}
             <button
               type="button"
               title="View Media"
@@ -187,7 +226,6 @@ function ProductMedia() {
               <FontAwesomeIcon icon={faEye} />
             </button>
 
-            {/* DELETE BUTTON */}
             <button
               type="button"
               title="Delete Media"
@@ -237,7 +275,7 @@ function ProductMedia() {
           <DataTable
             columns={columns}
             data={mediaList}
-            keyField="_id"
+            keyField="productId"
             progressPending={loading}
             pagination
             paginationPerPage={10}

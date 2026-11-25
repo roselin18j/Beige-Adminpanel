@@ -29,10 +29,9 @@ function ViewProductVariant() {
         method: "GET",
       });
 
-      console.log('response-------------------22222', response)
 
       if (response?.status) {
-        setVariant(response.data);
+       setVariant(response.data?.[0] || null);
       } else {
         toast.error(response?.message || "Failed to fetch variant");
       }

@@ -54,9 +54,40 @@ function ProductBasics() {
   };
 
   // Delete Basic Product
+
+
+  // const handleDelete = async (id) => {
+  //   const confirmDelete = window.confirm(
+  //     "Are you sure you want to delete this product?"
+  //   );
+
+  //   if (!confirmDelete) return;
+
+  //   try {
+  //     const response = await makeApiRequest({
+  //       url: `deleteproduct-basics/${id}`,
+  //       method: "DELETE",
+  //     });
+
+  //     const result = response?.data.data || response;
+
+  //     if (result?.status) {
+  //       toast.success("Product basics deleted successfully");
+  //       getProducts();
+  //     } else {
+  //       toast.error(result?.message || "Delete failed");
+  //     }
+  //   } catch (error) {
+  //     toast.error(
+  //       error?.response?.data?.message || "Delete failed"
+  //     );
+  //   }
+  // };
+
+  
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this product?"
+      "Are you sure you want to delete this product basic?"
     );
 
     if (!confirmDelete) return;
@@ -67,21 +98,24 @@ function ProductBasics() {
         method: "DELETE",
       });
 
-      const result = response?.data.data || response;
+      const result = response?.data?.data || response;
 
       if (result?.status) {
-        toast.success("Product basics deleted successfully");
+        toast.success(
+          result.message || "Product basics deleted successfully"
+        );
         getProducts();
       } else {
         toast.error(result?.message || "Delete failed");
       }
     } catch (error) {
+      console.error("Delete product basics error:", error);
+
       toast.error(
         error?.response?.data?.message || "Delete failed"
       );
     }
   };
-
   // Search
   const filteredProducts = products.filter((product) => {
     const searchValue = search.toLowerCase();

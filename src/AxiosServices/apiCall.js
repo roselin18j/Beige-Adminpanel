@@ -7,6 +7,7 @@ export const makeApiRequest = async (params) => {
     const method = params.method.toUpperCase();
 
     const getToken = localStorage.getItem("token");
+    console.log('getToken', getToken)
 
     const headers = {};
 
@@ -22,10 +23,19 @@ export const makeApiRequest = async (params) => {
       headers["Content-Type"] = "application/json";
     }
 
-    const baseUrl = config.adminBackendUrl.replace(/\/+$/, "");
-    const endpoint = params.url.replace(/^\/+/, "");
+    // const baseUrl = config.adminBackendUrl.replace(/\/+$/, "");
+    // const endpoint = params.url.replace(/^\/+/, "");
+    // const apiUrl = `${baseUrl}/${endpoint}`;
+    // console.log('apiUrl--------', apiUrl)
 
+
+    const baseUrl = config.adminBackendUrl.replace(/\/+$/, "");
+    let endpoint = params.url.replace(/^\/+/, "");
+    if (baseUrl.endsWith("/admin")) {
+      endpoint = endpoint.replace(/^admin\/+/i, "");
+    }
     const apiUrl = `${baseUrl}/${endpoint}`;
+
 
     const requestConfig = {
       headers,
@@ -48,7 +58,7 @@ export const makeApiRequest = async (params) => {
         );
 
         console.log('response', response)
-       
+
         break;
 
       case "PUT":

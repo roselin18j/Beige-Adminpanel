@@ -29,6 +29,8 @@ function Login() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+
+
   async function handleLoginSubmit(event) {
     event.preventDefault();
 
@@ -46,67 +48,54 @@ function Login() {
 
     setLoginError(validationErrors);
 
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) return;
 
     try {
       const params = {
         url: "admin-login",
         method: "POST",
         data: {
-          email: email.trim(),
+          email: email.trim().toLowerCase(),
           password,
         },
       };
 
-      console.log('Before Login')
+      console.log("Sending login request");
+
       const response = await makeApiRequest(params);
 
       console.log("Login API Response:", response);
 
-      const userData = response?.data || response?.user || response;
-
-      const responseEmail =
-        userData?.email || response?.email;
-
-      const token =
-        userData?.token ||
-        response?.token ||
-        response?.accessToken;
-
-      if (response?.status === true) {
-        if (responseEmail) {
-          localStorage.setItem("email", responseEmail);
-        }
-
-        if (token) {
-          localStorage.setItem("token", token);
-        }
-
-        toast.success(response.message || "Login successful");
-
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1000);
-      } else {
-        toast.warn(response?.message || "Invalid login credentials");
+      if (response?.status !== true) {
+        toast.error(response?.message || "Invalid login credentials");
+        return;
       }
+
+      const userData = response.data || response.user || {};
+
+      localStorage.setItem("email", userData.email || "");
+      localStorage.setItem("name", userData.name || "");
+      localStorage.setItem("role", userData.role || "");
+
+      toast.success(response.message || "Login successful");
+
+      console.log("Navigating to dashboard");
+
+      navigate("/dashboard", { replace: true });
+
     } catch (error) {
       console.error(
         "Login Error:",
         error.response?.data || error.message
       );
 
-      const errorData = error.response?.data;
-
       toast.error(
-        errorData?.message ||
-        (typeof errorData === "string" ? errorData : null) ||
+        error.response?.data?.message ||
         "An error occurred while processing your request."
       );
     }
   }
+
 
   useEffect(() => {
     const fetchSocialMediaLinks = async () => {

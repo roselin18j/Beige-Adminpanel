@@ -130,6 +130,8 @@ function CreateProductPricing() {
     try {
       setSubmitting(true);
 
+
+
       const payload = {
         productId: formData.productId,
         mrp: Number(formData.mrp),
@@ -176,7 +178,6 @@ function CreateProductPricing() {
   return (
     <div className="container-fluid py-3">
 
-      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">Create Product Pricing</h4>
 
@@ -189,7 +190,6 @@ function CreateProductPricing() {
         </button>
       </div>
 
-      {/* Create Form */}
       <div className="card shadow-sm">
 
         <div className="card-header bg-white">

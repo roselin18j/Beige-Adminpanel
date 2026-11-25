@@ -46,7 +46,7 @@ function Resetpassword() {
           url: "admin-reset-password",
           method: "POST",
           data: {
-            password:values.password ,
+            newPassword:values.password ,
             confirmPassword:values.confirmPassword,
             token
           },

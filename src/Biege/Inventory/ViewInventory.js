@@ -53,9 +53,8 @@ const statusColors = {
 // STATUS BADGE
 const renderStatus = (value) => (
   <span
-    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-bold tracking-wide ${
-      statusColors[value] || "bg-[#eef0f6] text-[#7f8ba5]"
-    }`}
+    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-bold tracking-wide ${statusColors[value] || "bg-[#eef0f6] text-[#7f8ba5]"
+      }`}
   >
     <span className="h-1.5 w-1.5 rounded-full bg-current" />
     {value?.replaceAll("_", " ") || "N/A"}
@@ -210,7 +209,7 @@ function ViewInventory() {
           lowStockThreshold: Number(editLowStockThreshold),
         },
       });
-
+      console.log('update-inventory', response)
       if (response?.status) {
         toast.success(response.message || "Inventory updated successfully");
 
@@ -257,12 +256,14 @@ function ViewInventory() {
         method: "GET",
       });
 
+      console.log('getInventory', response)
+
       if (response?.status && Array.isArray(response.data)) {
         setInventory(response.data);
         setTotalRecords(
           response.pagination?.total ??
-            response.pagination?.totalRecords ??
-            response.data.length
+          response.pagination?.totalRecords ??
+          response.data.length
         );
       } else {
         setInventory([]);
@@ -293,6 +294,8 @@ function ViewInventory() {
         method: "GET",
       });
 
+      console.log('warehouse/get-warehouses', response)
+
       if (response?.status && Array.isArray(response.data)) {
         setWarehouses(response.data);
       } else {
@@ -312,6 +315,7 @@ function ViewInventory() {
         method: "GET",
       });
 
+      console.log('getproduct', response)
       if (response?.status && Array.isArray(response.data)) {
         setProducts(response.data);
       } else {
@@ -344,6 +348,7 @@ function ViewInventory() {
         method: "DELETE",
       });
 
+      console.log('delete-inventory', response)
       if (response?.status) {
         toast.success(response.message || "Inventory deleted successfully");
 
@@ -363,6 +368,42 @@ function ViewInventory() {
   };
 
   // GET VARIANTS BY PRODUCT
+  // const getVariants = async (productId) => {
+  //   try {
+  //     setVariants([]);
+
+  //     if (!productId) return;
+
+  //     const response = await makeApiRequest({
+  //       url: "getproduct-variant",
+  //       method: "GET",
+  //     });
+
+  //     console.log('getproduct-variant--------------------', response)
+
+  //     if (response?.status && Array.isArray(response.data)) {
+  //       const filteredVariants = response.data.filter((variant) => {
+  //         const variantProductId =
+  //           typeof variant.product === "object"
+  //             ? variant.product?._id
+  //             : variant.product;
+
+  //         return String(variantProductId) === String(productId);
+  //       });
+
+  //       setVariants(filteredVariants);
+  //     } else {
+  //       setVariants([]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Get variants error:", error);
+  //     setVariants([]);
+  //     toast.error("Failed to fetch variants");
+  //   }
+  // };
+
+
+
   const getVariants = async (productId) => {
     try {
       setVariants([]);
@@ -374,12 +415,14 @@ function ViewInventory() {
         method: "GET",
       });
 
+      console.log("getproduct-variant", response);
+
       if (response?.status && Array.isArray(response.data)) {
         const filteredVariants = response.data.filter((variant) => {
           const variantProductId =
-            typeof variant.product === "object"
-              ? variant.product?._id
-              : variant.product;
+            typeof variant.productId === "object"
+              ? variant.productId?._id
+              : variant.productId;
 
           return String(variantProductId) === String(productId);
         });
@@ -394,6 +437,7 @@ function ViewInventory() {
       toast.error("Failed to fetch variants");
     }
   };
+
 
   // RECEIVE FORM CHANGE
   const handleReceiveChange = (e) => {
@@ -508,6 +552,8 @@ function ViewInventory() {
         data: payload,
       });
 
+      console.log('receive-stock', response)
+
       if (response?.status) {
         toast.success(response.message || "Stock received successfully");
 
@@ -538,6 +584,8 @@ function ViewInventory() {
         url: `get-inventory/${id}`,
         method: "GET",
       });
+
+      console.log('get-inventory/${id}', response)
 
       if (response?.status) {
         setSelectedInventory(response.data);
@@ -577,6 +625,8 @@ function ViewInventory() {
         method: "POST",
         data: payload,
       });
+
+      console.log('adjust-stock', response)
 
       if (response?.status) {
         toast.success(response.message || "Stock adjusted successfully");
@@ -983,6 +1033,8 @@ function ViewInventory() {
                 <label className={labelCls}>
                   Variant <span className="text-[#d64550]">*</span>
                 </label>
+
+
                 <select
                   className={inputCls}
                   name="variantId"
@@ -998,6 +1050,9 @@ function ViewInventory() {
                     </option>
                   ))}
                 </select>
+
+
+                
               </div>
 
               <div>

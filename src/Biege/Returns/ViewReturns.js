@@ -203,14 +203,31 @@ const getOrderId = (order) => {
   return order.orderId || order._id || "N/A";
 };
 
+// CORRECT RETURN AMOUNT CALCULATION
+// Your response contains amount inside items[].returnAmount.
 const getReturnAmount = (row) => {
-  return Number(
-    row?.refundAmount ??
+  if (!row) return 0;
+
+  if (Array.isArray(row.items) && row.items.length > 0) {
+    return row.items.reduce((total, item) => {
+      const amount = Number(item?.returnAmount ?? 0);
+
+      return (
+        total +
+        (Number.isFinite(amount) && amount > 0 ? amount : 0)
+      );
+    }, 0);
+  }
+
+  const rootAmount =
     row?.returnAmount ??
     row?.totalAmount ??
-    row?.amount ??
-    0
-  );
+    row?.refundAmount ??
+    row?.amount;
+
+  const amount = Number(rootAmount ?? 0);
+
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
 };
 
 function ViewReturns() {
@@ -378,10 +395,14 @@ function ViewReturns() {
       const payload = getPayload(response);
 
       if (response?.status) {
-        setSelectedReturn(payload.return || payload.data || payload);
+        setSelectedReturn(
+          payload.return || payload.data || payload
+        );
         setShowDetails(true);
       } else {
-        toast.error(response?.message || "Failed to fetch return details");
+        toast.error(
+          response?.message || "Failed to fetch return details"
+        );
       }
     } catch (error) {
       console.error("Return details error:", error);
@@ -406,15 +427,21 @@ function ViewReturns() {
     await getReturns();
 
     if (id) {
-      const response = await makeApiRequest({
-        url: `get-return/${id}`,
-        method: "GET",
-      });
+      try {
+        const response = await makeApiRequest({
+          url: `get-return/${id}`,
+          method: "GET",
+        });
 
-      const payload = getPayload(response);
+        const payload = getPayload(response);
 
-      if (response?.status) {
-        setSelectedReturn(payload.return || payload.data || payload);
+        if (response?.status) {
+          setSelectedReturn(
+            payload.return || payload.data || payload
+          );
+        }
+      } catch (error) {
+        console.error("Refresh return error:", error);
       }
     }
   };
@@ -444,7 +471,9 @@ function ViewReturns() {
       console.log("approve-return", response);
 
       if (response?.status) {
-        toast.success(response.message || "Return approved successfully");
+        toast.success(
+          response.message || "Return approved successfully"
+        );
 
         await refreshReturn(row._id);
       } else {
@@ -463,7 +492,7 @@ function ViewReturns() {
   };
 
   // ------------------------------------------------
-  // OPEN REJECT MODAL
+  // REJECT RETURN
   // ------------------------------------------------
 
   const openRejectModal = (row) => {
@@ -478,10 +507,6 @@ function ViewReturns() {
     setShowRejectModal(false);
     setRejectValues({ ...initialRejectValues });
   };
-
-  // ------------------------------------------------
-  // REJECT RETURN
-  // ------------------------------------------------
 
   const handleRejectReturn = async (e) => {
     e.preventDefault();
@@ -506,7 +531,9 @@ function ViewReturns() {
       console.log("reject-return", response);
 
       if (response?.status) {
-        toast.success(response.message || "Return rejected successfully");
+        toast.success(
+          response.message || "Return rejected successfully"
+        );
 
         setShowRejectModal(false);
         setRejectValues({ ...initialRejectValues });
@@ -528,7 +555,7 @@ function ViewReturns() {
   };
 
   // ------------------------------------------------
-  // OPEN PICKUP MODAL
+  // SCHEDULE PICKUP
   // ------------------------------------------------
 
   const openPickupModal = (row) => {
@@ -543,10 +570,6 @@ function ViewReturns() {
     setShowPickupModal(false);
     setPickupValues({ ...initialPickupValues });
   };
-
-  // ------------------------------------------------
-  // SCHEDULE PICKUP
-  // ------------------------------------------------
 
   const handleSchedulePickup = async (e) => {
     e.preventDefault();
@@ -582,14 +605,18 @@ function ViewReturns() {
       console.log("schedule-return-pickup", response);
 
       if (response?.status) {
-        toast.success(response.message || "Return pickup scheduled");
+        toast.success(
+          response.message || "Return pickup scheduled"
+        );
 
         setShowPickupModal(false);
         setPickupValues({ ...initialPickupValues });
 
         await refreshReturn(selectedReturn._id);
       } else {
-        toast.error(response?.message || "Failed to schedule pickup");
+        toast.error(
+          response?.message || "Failed to schedule pickup"
+        );
       }
     } catch (error) {
       console.error("Schedule pickup error:", error);
@@ -604,7 +631,7 @@ function ViewReturns() {
   };
 
   // ------------------------------------------------
-  // OPEN RECEIVE MODAL
+  // RECEIVE RETURN
   // ------------------------------------------------
 
   const openReceiveModal = (row) => {
@@ -623,10 +650,6 @@ function ViewReturns() {
     setShowReceiveModal(false);
     setReceiveValues({ ...initialReceiveValues });
   };
-
-  // ------------------------------------------------
-  // MARK RETURN RECEIVED
-  // ------------------------------------------------
 
   const handleReceiveReturn = async (e) => {
     e.preventDefault();
@@ -658,14 +681,18 @@ function ViewReturns() {
       console.log("receive-return", response);
 
       if (response?.status) {
-        toast.success(response.message || "Return received successfully");
+        toast.success(
+          response.message || "Return received successfully"
+        );
 
         setShowReceiveModal(false);
         setReceiveValues({ ...initialReceiveValues });
 
         await refreshReturn(selectedReturn._id);
       } else {
-        toast.error(response?.message || "Failed to receive return");
+        toast.error(
+          response?.message || "Failed to receive return"
+        );
       }
     } catch (error) {
       console.error("Receive return error:", error);
@@ -684,13 +711,25 @@ function ViewReturns() {
   // ------------------------------------------------
 
   const openRefundModal = (row) => {
-    setSelectedReturn(row);
+    console.log("Selected return for refund:", row);
 
     const amount = getReturnAmount(row);
 
+    console.log("Calculated maximum refund:", amount);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("No valid return amount found");
+      return;
+    }
+
+    setSelectedReturn(row);
+
     setRefundValues({
       ...initialRefundValues,
-      refundAmount: String(amount),
+      refundType: "FULL",
+      refundMethod: "GATEWAY",
+      refundAmount: amount.toFixed(2),
+      reason: "",
     });
 
     setShowRefundModal(true);
@@ -713,17 +752,29 @@ function ViewReturns() {
     const requestedAmount = Number(refundValues.refundAmount);
     const maximumAmount = getReturnAmount(selectedReturn);
 
-    if (
-      !Number.isFinite(requestedAmount) ||
-      requestedAmount <= 0
-    ) {
+    console.log("========== REFUND DEBUG ==========");
+    console.log("Return ID:", selectedReturn?._id);
+    console.log("Refund Type:", refundValues.refundType);
+    console.log("Refund Method:", refundValues.refundMethod);
+    console.log("Entered Amount:", refundValues.refundAmount);
+    console.log("Maximum Amount:", maximumAmount);
+    console.log("Requested Amount:", requestedAmount);
+    console.log("Return Items:", selectedReturn?.items);
+    console.log("==================================");
+
+    if (!Number.isFinite(requestedAmount) || requestedAmount <= 0) {
       toast.error("Enter a valid refund amount");
+      return;
+    }
+
+    if (!Number.isFinite(maximumAmount) || maximumAmount <= 0) {
+      toast.error("Return amount is not available");
       return;
     }
 
     if (
       refundValues.refundType === "FULL" &&
-      requestedAmount !== maximumAmount
+      Math.abs(requestedAmount - maximumAmount) > 0.001
     ) {
       toast.error("Full refund amount must match the return amount");
       return;
@@ -748,28 +799,36 @@ function ViewReturns() {
     try {
       setSubmitting(true);
 
+      const requestData = {
+        refundType: refundValues.refundType,
+        refundMethod: refundValues.refundMethod,
+        refundAmount: requestedAmount,
+        reason: refundValues.reason.trim(),
+      };
+
+      console.log("Refund API Request:", requestData);
+
       const response = await makeApiRequest({
         url: `issue-return-refund/${selectedReturn._id}`,
         method: "POST",
-        data: {
-          refundType: refundValues.refundType,
-          refundMethod: refundValues.refundMethod,
-          refundAmount: requestedAmount,
-          reason: refundValues.reason.trim(),
-        },
+        data: requestData,
       });
 
-      console.log("issue-return-refund", response);
+      console.log("Refund API Response:", response);
 
       if (response?.status) {
-        toast.success(response.message || "Refund processed successfully");
+        toast.success(
+          response.message || "Refund processed successfully"
+        );
 
         setShowRefundModal(false);
         setRefundValues({ ...initialRefundValues });
 
         await refreshReturn(selectedReturn._id);
       } else {
-        toast.error(response?.message || "Failed to process refund");
+        toast.error(
+          response?.message || "Failed to process refund"
+        );
       }
     } catch (error) {
       console.error("Issue refund error:", error);
@@ -784,7 +843,7 @@ function ViewReturns() {
   };
 
   // ------------------------------------------------
-  // SEARCH / FILTER
+  // FILTERS
   // ------------------------------------------------
 
   const handleSearch = (value) => {
@@ -1001,6 +1060,7 @@ function ViewReturns() {
               <button
                 type="button"
                 onClick={() => openRefundModal(row)}
+                disabled={submitting}
                 className={`${actBase} border border-[#d1f0df] bg-[#e1f6ea] text-[#1f9d62]`}
               >
                 <i className="fa fa-money"></i>
@@ -1197,7 +1257,6 @@ function ViewReturns() {
       {/* RETURNS TABLE */}
 
       <div className="overflow-hidden rounded-2xl border border-[#e9ebf3] bg-white shadow-[0_4px_18px_rgba(31,42,74,0.04)]">
-
         <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#e9ebf3] px-6 py-[18px]">
           <h5 className="text-lg font-bold text-[#1f2a4a]">
             Return Requests
@@ -1240,9 +1299,7 @@ function ViewReturns() {
         />
       </div>
 
-      {/* ==========================================
-          RETURN DETAILS MODAL
-      ========================================== */}
+      {/* RETURN DETAILS MODAL */}
 
       {showDetails && selectedReturn && (
         <Modal
@@ -1296,9 +1353,7 @@ function ViewReturns() {
                   <p className={detailLabel}>Return Date</p>
                   <p className={detailValue}>
                     {selectedReturn.createdAt
-                      ? new Date(
-                          selectedReturn.createdAt
-                        ).toLocaleDateString()
+                      ? new Date(selectedReturn.createdAt).toLocaleDateString()
                       : "N/A"}
                   </p>
                 </div>
@@ -1332,16 +1387,14 @@ function ViewReturns() {
                 <div>
                   <p className={detailLabel}>Email</p>
                   <p className={detailValue}>
-                    {(selectedReturn.userid || selectedReturn.customer)?.email ||
-                      "N/A"}
+                    {(selectedReturn.userid || selectedReturn.customer)?.email || "N/A"}
                   </p>
                 </div>
 
                 <div>
                   <p className={detailLabel}>Mobile</p>
                   <p className={detailValue}>
-                    {(selectedReturn.userid || selectedReturn.customer)?.mobile ||
-                      "N/A"}
+                    {(selectedReturn.userid || selectedReturn.customer)?.mobile || "N/A"}
                   </p>
                 </div>
               </div>
@@ -1354,78 +1407,84 @@ function ViewReturns() {
                 Returned Products
               </h4>
 
-              {(selectedItems.length > 0 ? selectedItems : [selectedReturn]).map(
-                (item, index) => {
-                  const product =
-                    item.productId ||
-                    item.product ||
-                    selectedReturn.productId ||
-                    selectedReturn.product ||
-                    {};
+              {(selectedItems.length > 0
+                ? selectedItems
+                : [selectedReturn]
+              ).map((item, index) => {
+                const product =
+                  item.productId ||
+                  item.product ||
+                  selectedReturn.productId ||
+                  selectedReturn.product ||
+                  {};
 
-                  const productName =
-                    item.productName ||
-                    item.productname ||
-                    product.productname ||
-                    product.name ||
-                    "N/A";
+                const productName =
+                  item.productName ||
+                  item.productname ||
+                  product.productname ||
+                  product.name ||
+                  "N/A";
 
-                  const images =
-                    item.productimages ||
-                    product.productimages ||
-                    [];
+                const images =
+                  item.productimages ||
+                  product.productimages ||
+                  [];
 
-                  const image =
-                    item.image ||
-                    (typeof images[0] === "string"
-                      ? images[0]
-                      : images[0]?.media);
+                const image =
+                  item.image ||
+                  (typeof images[0] === "string"
+                    ? images[0]
+                    : images[0]?.media);
 
-                  return (
-                    <div
-                      key={item._id || index}
-                      className="mb-3 flex flex-wrap items-center gap-4 rounded-xl border border-[#e9ebf3] p-4"
-                    >
-                      {image ? (
-                        <img
-                          src={image}
-                          alt={productName}
-                          className="h-16 w-16 rounded-lg border border-[#e9ebf3] object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[#f0e5d3] text-[#6f533b]">
-                          <i className="fa fa-image text-xl"></i>
-                        </div>
-                      )}
-
-                      <div className="min-w-[150px] flex-1">
-                        <p className="font-bold text-[#1f2a4a]">
-                          {productName}
-                        </p>
-                        <p className="mt-1 text-xs text-[#7f8ba5]">
-                          Variant: {item.variantName || item.variant || "N/A"}
-                        </p>
-                        <p className="text-xs text-[#7f8ba5]">
-                          Quantity: {item.quantity ?? selectedReturn.quantity ?? 1}
-                        </p>
+                return (
+                  <div
+                    key={item._id || index}
+                    className="mb-3 flex flex-wrap items-center gap-4 rounded-xl border border-[#e9ebf3] p-4"
+                  >
+                    {image ? (
+                      <img
+                        src={image}
+                        alt={productName}
+                        className="h-16 w-16 rounded-lg border border-[#e9ebf3] object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[#f0e5d3] text-[#6f533b]">
+                        <i className="fa fa-image text-xl"></i>
                       </div>
+                    )}
 
-                      <div>
-                        <p className="text-xs text-[#7f8ba5]">Return Amount</p>
-                        <p className="font-bold text-[#6f533b]">
-                          ₹{Number(
-                            item.returnAmount ??
-                            item.total ??
-                            item.price ??
-                            selectedReturn.returnAmount ??
-                            0
-                          ).toFixed(2)}
-                        </p>
-                      </div>
+                    <div className="min-w-[150px] flex-1">
+                      <p className="font-bold text-[#1f2a4a]">
+                        {productName}
+                      </p>
+
+                      <p className="mt-1 text-xs text-[#7f8ba5]">
+                        Variant: {item.variantName || item.variant || "N/A"}
+                      </p>
+
+                      <p className="text-xs text-[#7f8ba5]">
+                        Quantity: {item.quantity ?? selectedReturn.quantity ?? 1}
+                      </p>
                     </div>
-                  );
-                }
-              )}
+
+                    <div>
+                      <p className="text-xs text-[#7f8ba5]">
+                        Return Amount
+                      </p>
+
+                      <p className="font-bold text-[#6f533b]">
+                        ₹{Number(
+                          item.returnAmount ??
+                          item.total ??
+                          item.price ??
+                          selectedReturn.returnAmount ??
+                          0
+                        ).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* RETURN REASON */}
@@ -1464,23 +1523,19 @@ function ViewReturns() {
               <div className="flex flex-wrap items-center gap-3">
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    selectedReturn.eligibility?.eligible ??
-                    selectedReturn.isEligible
+                    (selectedReturn.eligibility?.eligible ??
+                    selectedReturn.isEligible)
                       ? "bg-[#e1f6ea] text-[#1f9d62]"
                       : "bg-[#fdeaea] text-[#d64550]"
                   }`}
                 >
-                  {(
-                    selectedReturn.eligibility?.eligible ??
-                    selectedReturn.isEligible
-                  ) === true
+                  {(selectedReturn.eligibility?.eligible ??
+                  selectedReturn.isEligible) === true
                     ? "ELIGIBLE"
-                    : (
-                        selectedReturn.eligibility?.eligible ??
-                        selectedReturn.isEligible
-                      ) === false
-                      ? "NOT ELIGIBLE"
-                      : "NOT CHECKED"}
+                    : (selectedReturn.eligibility?.eligible ??
+                      selectedReturn.isEligible) === false
+                    ? "NOT ELIGIBLE"
+                    : "NOT CHECKED"}
                 </span>
 
                 <span className="text-xs text-[#7f8ba5]">
@@ -1504,8 +1559,8 @@ function ViewReturns() {
                     {selectedReturn.isOpened === true
                       ? "Yes"
                       : selectedReturn.isOpened === false
-                        ? "No"
-                        : "N/A"}
+                      ? "No"
+                      : "N/A"}
                   </p>
                 </div>
               </div>
@@ -1615,7 +1670,9 @@ function ViewReturns() {
                   {selectedReturn.inspection.condition || "N/A"}
                 </p>
 
-                <p className={`${detailLabel} mt-3`}>Inspection Notes</p>
+                <p className={`${detailLabel} mt-3`}>
+                  Inspection Notes
+                </p>
                 <p className={detailValue}>
                   {selectedReturn.inspection.conditionNotes || "N/A"}
                 </p>
@@ -1640,7 +1697,7 @@ function ViewReturns() {
                     <p className={detailLabel}>Refund Amount</p>
                     <p className={detailValue}>
                       ₹{Number(
-                        selectedReturn.refund.refundAmount || 0
+                        selectedReturn.refund.amount || 0
                       ).toFixed(2)}
                     </p>
                   </div>
@@ -1665,6 +1722,24 @@ function ViewReturns() {
                       {selectedReturn.refund.status || "N/A"}
                     </p>
                   </div>
+
+                  <div>
+                    <p className={detailLabel}>Refund Type</p>
+                    <p className={detailValue}>
+                      {selectedReturn.refund.refundType || "N/A"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className={detailLabel}>Processed Date</p>
+                    <p className={detailValue}>
+                      {selectedReturn.refund.processedAt
+                        ? new Date(
+                            selectedReturn.refund.processedAt
+                          ).toLocaleString()
+                        : "Not processed"}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -1676,19 +1751,17 @@ function ViewReturns() {
                 <h4 className="font-bold text-[#d64550]">
                   Rejection Reason
                 </h4>
+
                 <p className="mt-2 text-sm text-[#5a432f]">
                   {selectedReturn.rejectionReason}
                 </p>
               </div>
             )}
-
           </div>
         </Modal>
       )}
 
-      {/* ==========================================
-          REJECT RETURN MODAL
-      ========================================== */}
+      {/* REJECT RETURN MODAL */}
 
       {showRejectModal && selectedReturn && (
         <form onSubmit={handleRejectReturn}>
@@ -1721,6 +1794,7 @@ function ViewReturns() {
               <p className="text-sm font-bold text-[#d64550]">
                 Return ID: {selectedReturn.returnId || selectedReturn._id}
               </p>
+
               <p className="mt-1 text-xs text-[#7f8ba5]">
                 The rejection reason will be sent to the customer.
               </p>
@@ -1747,9 +1821,7 @@ function ViewReturns() {
         </form>
       )}
 
-      {/* ==========================================
-          SCHEDULE PICKUP MODAL
-      ========================================== */}
+      {/* SCHEDULE PICKUP MODAL */}
 
       {showPickupModal && selectedReturn && (
         <form onSubmit={handleSchedulePickup}>
@@ -1783,6 +1855,7 @@ function ViewReturns() {
               <p className="font-bold text-[#6f533b]">
                 Return: {selectedReturn.returnId || selectedReturn._id}
               </p>
+
               <p className="mt-1 text-xs text-[#7f8ba5]">
                 Arrange courier collection from the customer.
               </p>
@@ -1790,9 +1863,7 @@ function ViewReturns() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className={labelCls}>
-                  Courier Name *
-                </label>
+                <label className={labelCls}>Courier Name *</label>
 
                 <select
                   className={inputCls}
@@ -1815,9 +1886,7 @@ function ViewReturns() {
               </div>
 
               <div>
-                <label className={labelCls}>
-                  Pickup Date *
-                </label>
+                <label className={labelCls}>Pickup Date *</label>
 
                 <input
                   type="date"
@@ -1835,9 +1904,7 @@ function ViewReturns() {
               </div>
 
               <div>
-                <label className={labelCls}>
-                  Tracking Number
-                </label>
+                <label className={labelCls}>Tracking Number</label>
 
                 <input
                   type="text"
@@ -1854,9 +1921,7 @@ function ViewReturns() {
               </div>
 
               <div>
-                <label className={labelCls}>
-                  Tracking URL
-                </label>
+                <label className={labelCls}>Tracking URL</label>
 
                 <input
                   type="url"
@@ -1873,9 +1938,7 @@ function ViewReturns() {
               </div>
 
               <div className="md:col-span-2">
-                <label className={labelCls}>
-                  Pickup Notes
-                </label>
+                <label className={labelCls}>Pickup Notes</label>
 
                 <textarea
                   className={inputCls}
@@ -1895,9 +1958,7 @@ function ViewReturns() {
         </form>
       )}
 
-      {/* ==========================================
-          RECEIVE RETURN / CONDITION CHECK MODAL
-      ========================================== */}
+      {/* RECEIVE RETURN MODAL */}
 
       {showReceiveModal && selectedReturn && (
         <form onSubmit={handleReceiveReturn}>
@@ -1966,9 +2027,7 @@ function ViewReturns() {
               </div>
 
               <div>
-                <label className={labelCls}>
-                  Inspection Notes
-                </label>
+                <label className={labelCls}>Inspection Notes</label>
 
                 <textarea
                   className={inputCls}
@@ -2052,9 +2111,7 @@ function ViewReturns() {
         </form>
       )}
 
-      {/* ==========================================
-          REFUND MODAL
-      ========================================== */}
+      {/* REFUND MODAL */}
 
       {showRefundModal && selectedReturn && (
         <form onSubmit={handleIssueRefund}>
@@ -2094,7 +2151,10 @@ function ViewReturns() {
                 </div>
 
                 <div className="text-right">
-                  <p className="text-xs text-[#7f8ba5]">Maximum Refund</p>
+                  <p className="text-xs text-[#7f8ba5]">
+                    Maximum Refund
+                  </p>
+
                   <p className="text-xl font-bold text-[#6f533b]">
                     ₹{getReturnAmount(selectedReturn).toFixed(2)}
                   </p>
@@ -2119,7 +2179,7 @@ function ViewReturns() {
                       refundType,
                       refundAmount:
                         refundType === "FULL"
-                          ? String(getReturnAmount(selectedReturn))
+                          ? getReturnAmount(selectedReturn).toFixed(2)
                           : "",
                     }));
                   }}
@@ -2141,7 +2201,6 @@ function ViewReturns() {
                   max={getReturnAmount(selectedReturn)}
                   step="0.01"
                   value={refundValues.refundAmount}
-                  disabled={refundValues.refundType === "FULL"}
                   onChange={(e) =>
                     setRefundValues({
                       ...refundValues,
@@ -2175,6 +2234,7 @@ function ViewReturns() {
                   <option value="GATEWAY">
                     Original Payment Gateway (Razorpay)
                   </option>
+
                   <option value="STORE_CREDIT">
                     Store Credit
                   </option>
@@ -2211,7 +2271,6 @@ function ViewReturns() {
           </Modal>
         </form>
       )}
-
     </div>
   );
 }

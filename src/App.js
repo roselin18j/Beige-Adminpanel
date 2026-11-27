@@ -17,7 +17,6 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          {/* ---------- Public routes ---------- */}
           <Route
             path="/"
             element={
@@ -54,9 +53,6 @@ function App() {
             }
           />
 
-          {/* ---------- Protected routes ----------
-              SideBar handles every other URL (/dashboard, /view-product, ...)
-              and has its own catch-all that redirects to /dashboard. */}
           <Route
             path="/*"
             element={

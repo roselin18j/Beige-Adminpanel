@@ -59,6 +59,11 @@ import ViewWarehouse from "../Biege/Inventory/ViewWarehouse";
 import ExpiryManagement from "../Biege/Inventory/ExpiryManagement";
 import Dashboard from "../Dashboard";
 
+import OrdersList from "../Biege/Orders/OrdersList";
+import Returnsrefunds from "../Biege/Returns/ViewReturns";
+
+
+
 
 
 function AddProductStep() {
@@ -208,7 +213,6 @@ function SideBar() {
     }
   };
 
-  /* ---------------- Active-state checks ---------------- */
 
   const isProductPage =
     pathname === "/view-product" ||
@@ -248,7 +252,6 @@ function SideBar() {
 
   const isWarehouse = pathname === "/warehouse";
 
-  /* ---------------- Menu ---------------- */
 
   const menuItems = [
     { label: "Dashboard", to: "/dashboard", module: null, active: pathname === "/dashboard" },
@@ -258,7 +261,10 @@ function SideBar() {
     { label: "Inventory", to: "/inventory", module: "INVENTORY", active: isInventory },
     { label: "Warehouse", to: "/warehouse", module: "WAREHOUSE", active: isWarehouse },
     { label: "SubAdmin Details", to: "/view-subadmin", module: "SUB_ADMIN", active: isSubAdminPage },
+    { label: "Orders", to: "/orderslist", module: "ORDERS", active: pathname === "/orderslist" },
+    { label: "Returns-refunds", to: "/returns-refunds", module: "RETURNS", active: pathname === "/returns-refunds" },
   ];
+
 
   const linkBase =
     "mx-2.5 flex items-center rounded-full px-4 py-[15px] text-[15px] leading-none text-black no-underline transition";
@@ -325,8 +331,8 @@ function SideBar() {
                   <Link
                     to={item.to}
                     className={`${linkBase} ${item.active
-                        ? "bg-[#6f533b] font-medium shadow-[0_4px_10px_rgba(233,138,155,0.3)] text-white"
-                        : "hover:bg-white/40"
+                      ? "bg-[#6f533b] font-medium shadow-[0_4px_10px_rgba(233,138,155,0.3)] text-white"
+                      : "hover:bg-white/40"
                       }`}
                   >
                     {item.label}
@@ -548,7 +554,14 @@ function SideBar() {
           <Route path="/expiry-management" element={<ExpiryManagement />} />
           <Route path="/warehouse" element={<ViewWarehouse />} />
 
+          <Route path="/orderslist" element={<OrdersList />} />
+
+          <Route path="/returns-refunds" element={<Returnsrefunds />} />
+
+
+
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
         </Routes>
       </main>
     </div>
